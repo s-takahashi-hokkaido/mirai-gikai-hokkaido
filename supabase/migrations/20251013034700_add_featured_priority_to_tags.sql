@@ -1,6 +1,6 @@
 -- Add featured_priority column to tags table
 ALTER TABLE tags
-ADD COLUMN featured_priority integer DEFAULT NULL;
+ADD COLUMN featured_priority integer DEFAULT NULL; -- 注目表示優先度（小さいほど高優先・NULL=非表示）
 
 -- Add comment
 COMMENT ON COLUMN tags.featured_priority IS 'Featured表示の優先度（数値が小さいほど優先度が高い）。NULLの場合は非表示';

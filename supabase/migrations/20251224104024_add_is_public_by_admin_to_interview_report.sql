@@ -2,7 +2,7 @@
 -- This allows admin to control which reports are visible to users
 
 ALTER TABLE interview_report
-ADD COLUMN is_public_by_admin BOOLEAN NOT NULL DEFAULT false;
+ADD COLUMN is_public_by_admin BOOLEAN NOT NULL DEFAULT false; -- 管理者によるレポート公開フラグ
 
 -- Add index for filtering public reports
 CREATE INDEX idx_interview_report_is_public_by_admin ON interview_report(is_public_by_admin);

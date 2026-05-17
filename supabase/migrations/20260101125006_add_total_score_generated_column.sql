@@ -3,7 +3,7 @@
 -- scores が null または total が存在しない場合は null になる
 
 ALTER TABLE interview_report
-ADD COLUMN total_score INTEGER GENERATED ALWAYS AS (
+ADD COLUMN total_score INTEGER GENERATED ALWAYS AS ( -- 総合スコア(0-100, scoresから自動生成)
   CASE
     WHEN scores IS NOT NULL
       AND scores->>'total' IS NOT NULL

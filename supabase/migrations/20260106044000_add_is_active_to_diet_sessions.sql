@@ -3,7 +3,7 @@
 -- Only one session should be active at a time (enforced by the RPC function)
 
 ALTER TABLE diet_sessions
-ADD COLUMN is_active boolean NOT NULL DEFAULT false;
+ADD COLUMN is_active boolean NOT NULL DEFAULT false; -- トップページに表示する有効フラグ（一度に1セッションのみtrue）
 
 -- Add comment for documentation
 COMMENT ON COLUMN diet_sessions.is_active IS 'Whether this session is the active one displayed on the top page. Only one session can be active at a time.';

@@ -3,7 +3,7 @@
 
 -- Step 1: Add is_public_by_user to interview_report
 ALTER TABLE interview_report
-ADD COLUMN is_public_by_user BOOLEAN NOT NULL DEFAULT false;
+ADD COLUMN is_public_by_user BOOLEAN NOT NULL DEFAULT false; -- ユーザーによるレポート公開同意フラグ
 
 COMMENT ON COLUMN interview_report.is_public_by_user IS 'Whether the user has consented to making their interview report public';
 

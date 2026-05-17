@@ -3,8 +3,9 @@ ALTER TYPE bill_publish_status ADD VALUE 'coming_soon';
 
 -- Add shugiin_url column to bills table for linking to House of Representatives page
 ALTER TABLE bills
-ADD COLUMN shugiin_url TEXT;
+ADD COLUMN shugiin_url TEXT; -- 衆議院ページURL
 
 -- Add comment for documentation
 COMMENT ON COLUMN bills.shugiin_url IS 'URL to the House of Representatives (衆議院) page for this bill';
+COMMENT ON COLUMN bills.shugiin_url IS '衆議院ページURL';
 

@@ -1,15 +1,15 @@
 -- トピック解析バージョン管理テーブル
 CREATE TABLE topic_analysis_versions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  bill_id UUID NOT NULL REFERENCES bills(id) ON DELETE CASCADE,
-  version INTEGER NOT NULL,
+  bill_id UUID NOT NULL REFERENCES bills(id) ON DELETE CASCADE, -- 対象議案ID
+  version INTEGER NOT NULL, -- バージョン番号
   status TEXT NOT NULL DEFAULT 'pending'
-    CHECK (status IN ('pending','running','completed','failed')),
-  summary_md TEXT,
-  intermediate_results JSONB,
-  error_message TEXT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CHECK (status IN ('pending','running','completed','failed')), -- 解析ステータス(pending/running/completed/failed)
+  summary_md TEXT, -- 全体サマリ(Markdown形式)
+  intermediate_results JSONB, -- 中間結果(デバッグ・参照用)
+  error_message TEXT, -- エラー時のメッセージ
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(), -- 作成日時
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(), -- 更新日時
   UNIQUE(bill_id, version)
 );
 
@@ -24,12 +24,12 @@ COMMENT ON COLUMN topic_analysis_versions.error_message IS 'エラー時のメ�
 -- トピックテーブル
 CREATE TABLE topic_analysis_topics (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  version_id UUID NOT NULL REFERENCES topic_analysis_versions(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
-  description_md TEXT NOT NULL,
-  representative_opinions JSONB NOT NULL DEFAULT '[]',
-  sort_order INTEGER NOT NULL DEFAULT 0,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  version_id UUID NOT NULL REFERENCES topic_analysis_versions(id) ON DELETE CASCADE, -- 所属バージョンID
+  name TEXT NOT NULL, -- トピック名
+  description_md TEXT NOT NULL, -- トピックの説明文(Markdown形式)
+  representative_opinions JSONB NOT NULL DEFAULT '[]', -- 代表的な意見(JSON配列・最大5件)
+  sort_order INTEGER NOT NULL DEFAULT 0, -- 表示順
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now() -- 作成日時
 );
 
 COMMENT ON TABLE topic_analysis_topics IS 'トピック解析で抽出されたトピック';
@@ -42,10 +42,10 @@ COMMENT ON COLUMN topic_analysis_topics.sort_order IS '表示順';
 -- 分類テーブル（opinion → topic の多対多）
 CREATE TABLE topic_analysis_classifications (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  version_id UUID NOT NULL REFERENCES topic_analysis_versions(id) ON DELETE CASCADE,
-  interview_report_id UUID NOT NULL REFERENCES interview_report(id) ON DELETE CASCADE,
-  topic_id UUID NOT NULL REFERENCES topic_analysis_topics(id) ON DELETE CASCADE,
-  opinion_index INTEGER NOT NULL,
+  version_id UUID NOT NULL REFERENCES topic_analysis_versions(id) ON DELETE CASCADE, -- 所属バージョンID
+  interview_report_id UUID NOT NULL REFERENCES interview_report(id) ON DELETE CASCADE, -- インタビューレポートID
+  topic_id UUID NOT NULL REFERENCES topic_analysis_topics(id) ON DELETE CASCADE, -- トピックID
+  opinion_index INTEGER NOT NULL, -- レポート内の意見インデックス
   UNIQUE(version_id, interview_report_id, topic_id, opinion_index)
 );
 

@@ -6,8 +6,10 @@ ALTER TABLE bills ADD COLUMN publish_status_order INT GENERATED ALWAYS AS (
     WHEN 'coming_soon' THEN 1
     WHEN 'published'   THEN 2
   END
-) STORED;
+) STORED; -- 公開状態ソート順(draft → coming_soon → published)
 
 ALTER TABLE bills ENABLE ROW LEVEL SECURITY;
 
 CREATE INDEX idx_bills_publish_status_order ON bills(publish_status_order);
+
+COMMENT ON COLUMN bills.publish_status_order IS '公開状態ソート順(draft → coming_soon → published の順。Generated Column)';

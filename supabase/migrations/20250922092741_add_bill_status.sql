@@ -4,7 +4,7 @@ CREATE TYPE bill_publish_status AS ENUM ('draft', 'published');
 
 -- Add publish_status column with default value 'draft'
 ALTER TABLE bills
-ADD COLUMN publish_status bill_publish_status NOT NULL DEFAULT 'draft';
+ADD COLUMN publish_status bill_publish_status NOT NULL DEFAULT 'draft'; -- 公開状態(draft/published/coming_soon)
 
 -- Create index for efficient filtering
 CREATE INDEX idx_bills_publish_status ON bills(publish_status);

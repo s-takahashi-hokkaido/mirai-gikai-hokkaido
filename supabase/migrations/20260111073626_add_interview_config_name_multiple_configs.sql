@@ -3,7 +3,7 @@
 
 -- Step 1: Add name column with default value for existing records
 ALTER TABLE interview_configs
-ADD COLUMN name TEXT NOT NULL DEFAULT 'デフォルト設定';
+ADD COLUMN name TEXT NOT NULL DEFAULT 'デフォルト設定'; -- 設定名（識別用）
 
 -- Step 2: Remove the default constraint after migration
 ALTER TABLE interview_configs

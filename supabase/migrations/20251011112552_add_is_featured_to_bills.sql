@@ -1,6 +1,6 @@
 -- Add is_featured column to bills table
 ALTER TABLE bills
-ADD COLUMN is_featured BOOLEAN DEFAULT FALSE NOT NULL;
+ADD COLUMN is_featured BOOLEAN DEFAULT FALSE NOT NULL; -- 注目フラグ
 
 -- Add index for efficient querying of featured bills
 CREATE INDEX idx_bills_is_featured ON bills(is_featured) WHERE is_featured = TRUE;

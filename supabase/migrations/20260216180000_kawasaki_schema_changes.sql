@@ -78,12 +78,12 @@ DROP FUNCTION IF EXISTS set_active_diet_session(uuid);
 -- ----------------------------------------
 CREATE TABLE committees (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL,
-    description TEXT,
-    sort_order INTEGER NOT NULL DEFAULT 0,
-    is_active BOOLEAN NOT NULL DEFAULT true,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    name TEXT NOT NULL, -- 委員会名
+    description TEXT, -- 委員会説明
+    sort_order INTEGER NOT NULL DEFAULT 0, -- 表示順
+    is_active BOOLEAN NOT NULL DEFAULT true, -- 有効フラグ
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(), -- 作成日時
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now() -- 更新日時
 );
 
 ALTER TABLE committees ENABLE ROW LEVEL SECURITY;
@@ -93,7 +93,7 @@ CREATE TRIGGER set_committees_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
-ALTER TABLE bills ADD COLUMN committee_id UUID REFERENCES committees(id);
+ALTER TABLE bills ADD COLUMN committee_id UUID REFERENCES committees(id); -- 委員会ID
 CREATE INDEX idx_bills_committee_id ON bills(committee_id);
 
 -- ----------------------------------------
@@ -101,13 +101,13 @@ CREATE INDEX idx_bills_committee_id ON bills(committee_id);
 -- ----------------------------------------
 CREATE TABLE factions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL,
-    display_name TEXT NOT NULL,
-    logo_url TEXT,
-    sort_order INTEGER NOT NULL DEFAULT 0,
-    is_active BOOLEAN NOT NULL DEFAULT true,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    name TEXT NOT NULL, -- 会派名
+    display_name TEXT NOT NULL, -- 会派表示名
+    logo_url TEXT, -- ロゴ画像URL
+    sort_order INTEGER NOT NULL DEFAULT 0, -- 表示順
+    is_active BOOLEAN NOT NULL DEFAULT true, -- 有効フラグ
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(), -- 作成日時
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now() -- 更新日時
 );
 
 ALTER TABLE factions ENABLE ROW LEVEL SECURITY;
@@ -122,12 +122,12 @@ CREATE TRIGGER set_factions_updated_at
 -- ----------------------------------------
 CREATE TABLE faction_stances (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    bill_id UUID NOT NULL REFERENCES bills(id) ON DELETE CASCADE,
-    faction_id UUID NOT NULL REFERENCES factions(id) ON DELETE CASCADE,
-    type stance_type_enum NOT NULL,
-    comment TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    bill_id UUID NOT NULL REFERENCES bills(id) ON DELETE CASCADE, -- 議案ID
+    faction_id UUID NOT NULL REFERENCES factions(id) ON DELETE CASCADE, -- 会派ID
+    type stance_type_enum NOT NULL, -- スタンス種別
+    comment TEXT, -- コメント
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(), -- 作成日時
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(), -- 更新日時
     UNIQUE(bill_id, faction_id)
 );
 
@@ -145,3 +145,27 @@ CREATE TRIGGER set_faction_stances_updated_at
 -- 8. mirai_stances テーブル削除
 -- ----------------------------------------
 DROP TABLE mirai_stances;
+
+-- ----------------------------------------
+-- 9. テーブル・カラムコメント
+-- ----------------------------------------
+COMMENT ON TABLE committees IS '委員会マスター';
+COMMENT ON COLUMN committees.name IS '委員会名';
+COMMENT ON COLUMN committees.description IS '委員会説明';
+COMMENT ON COLUMN committees.sort_order IS '表示順';
+COMMENT ON COLUMN committees.is_active IS '有効フラグ';
+
+COMMENT ON TABLE factions IS '会派マスター';
+COMMENT ON COLUMN factions.name IS '会派名';
+COMMENT ON COLUMN factions.display_name IS '会派表示名';
+COMMENT ON COLUMN factions.logo_url IS 'ロゴ画像URL';
+COMMENT ON COLUMN factions.sort_order IS '表示順';
+COMMENT ON COLUMN factions.is_active IS '有効フラグ';
+
+COMMENT ON TABLE faction_stances IS '会派見解（1議案に複数会派の見解を登録可能）';
+COMMENT ON COLUMN faction_stances.bill_id IS '議案ID';
+COMMENT ON COLUMN faction_stances.faction_id IS '会派ID';
+COMMENT ON COLUMN faction_stances.type IS 'スタンス種別';
+COMMENT ON COLUMN faction_stances.comment IS 'コメント';
+
+COMMENT ON COLUMN bills.committee_id IS '委員会ID';

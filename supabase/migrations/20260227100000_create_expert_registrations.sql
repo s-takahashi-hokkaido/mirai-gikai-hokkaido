@@ -1,12 +1,12 @@
 -- 有識者リスト登録情報を管理するテーブル
 CREATE TABLE expert_registrations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  interview_session_id UUID NOT NULL REFERENCES interview_sessions(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
-  affiliation TEXT NOT NULL,
-  email TEXT NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+  interview_session_id UUID NOT NULL REFERENCES interview_sessions(id) ON DELETE CASCADE, -- 登録元のインタビューセッションID
+  name TEXT NOT NULL, -- 有識者氏名
+  affiliation TEXT NOT NULL, -- 所属・肩書
+  email TEXT NOT NULL, -- メールアドレス
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(), -- 作成日時
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW() -- 更新日時
 );
 
 -- セッションごとに1件のみ登録可能

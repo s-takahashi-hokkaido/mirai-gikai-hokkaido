@@ -13,7 +13,7 @@ CREATE POLICY "Authenticated users can update bill thumbnails" ON storage.object
 CREATE POLICY "Authenticated users can delete bill thumbnails" ON storage.objects FOR DELETE USING (bucket_id = 'bill-thumbnails' AND auth.role() = 'authenticated');
 
 -- Add thumbnail_url column to bills table
-ALTER TABLE bills ADD COLUMN thumbnail_url TEXT;
+ALTER TABLE bills ADD COLUMN thumbnail_url TEXT; -- サムネイル画像URL
 
 -- Add comment for the new column
 COMMENT ON COLUMN bills.thumbnail_url IS 'URL to the bill thumbnail image stored in Supabase Storage';

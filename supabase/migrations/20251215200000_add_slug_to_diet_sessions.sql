@@ -2,14 +2,14 @@
 
 -- Add slug column for URL-friendly identifiers
 ALTER TABLE diet_sessions
-ADD COLUMN slug TEXT UNIQUE;
+ADD COLUMN slug TEXT UNIQUE; -- URL用スラッグ
 
 -- Create index for slug lookups
 CREATE INDEX idx_diet_sessions_slug ON diet_sessions(slug);
 
 -- Add shugiin_url column for linking to official 衆議院 page
 ALTER TABLE diet_sessions
-ADD COLUMN shugiin_url TEXT;
+ADD COLUMN shugiin_url TEXT; -- 衆議院議案情報ページURL
 
 -- Add comments for documentation
 COMMENT ON COLUMN diet_sessions.slug IS 'URL用のスラッグ（例: 219-rinji, 218-jokai）';

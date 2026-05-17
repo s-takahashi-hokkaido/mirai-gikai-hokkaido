@@ -2,10 +2,10 @@
 -- ユーザーは1つのレポートに対して1つのリアクション（helpful or hmm）のみ可能
 create table report_reactions (
   id uuid primary key default gen_random_uuid(),
-  interview_report_id uuid not null references interview_report(id) on delete cascade,
-  user_id uuid not null,
-  reaction_type text not null check (reaction_type in ('helpful', 'hmm')),
-  created_at timestamptz not null default now(),
+  interview_report_id uuid not null references interview_report(id) on delete cascade, -- インタビューレポートID
+  user_id uuid not null, -- ユーザーID
+  reaction_type text not null check (reaction_type in ('helpful', 'hmm')), -- リアクション種別(helpful or hmm)
+  created_at timestamptz not null default now(), -- 作成日時
   unique(interview_report_id, user_id)
 );
 
@@ -15,3 +15,8 @@ alter table report_reactions enable row level security;
 -- パフォーマンス用インデックス
 create index idx_report_reactions_report_id on report_reactions(interview_report_id);
 create index idx_report_reactions_user_id on report_reactions(user_id);
+
+COMMENT ON TABLE report_reactions IS 'レポートへのリアクション';
+COMMENT ON COLUMN report_reactions.interview_report_id IS 'インタビューレポートID';
+COMMENT ON COLUMN report_reactions.user_id IS 'ユーザーID';
+COMMENT ON COLUMN report_reactions.reaction_type IS 'リアクション種別(helpful or hmm)';

@@ -4,7 +4,7 @@
 DROP INDEX IF EXISTS idx_expert_registrations_session_id;
 
 -- user_id カラムを nullable で追加
-ALTER TABLE expert_registrations ADD COLUMN user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE expert_registrations ADD COLUMN user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE; -- 登録したユーザーのID
 
 -- 既存データがある場合、interview_sessions から user_id をバックフィル
 UPDATE expert_registrations er

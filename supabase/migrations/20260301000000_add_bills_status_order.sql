@@ -9,6 +9,8 @@ ALTER TABLE bills ADD COLUMN status_order INT GENERATED ALWAYS AS (
     WHEN 'submitted'       THEN 4
     WHEN 'preparing'       THEN 5
   END
-) STORED;
+) STORED; -- ステータスソート順(審議進行度順)
 
 CREATE INDEX idx_bills_status_order ON bills(status_order);
+
+COMMENT ON COLUMN bills.status_order IS 'ステータスソート順(審議進行度順。Generated Column)';
