@@ -2,7 +2,7 @@ name: Deploy Web
 
 on:
   push:
-    branches: [fukuoka-city/develop]
+    branches: [develop]
   workflow_dispatch:
 
 jobs:
