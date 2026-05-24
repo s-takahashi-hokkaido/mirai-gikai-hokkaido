@@ -186,7 +186,9 @@ async function seedDatabase() {
 
     // Insert faction_stances (みらい会派の見解)
     console.log("🎯 Inserting faction stances...");
-    const miraiFaction = insertedFactions.find((f) => f.name === "mirai");
+    const miraiFaction = insertedFactions.find(
+      (f) => f.name === "mirai-sapporo"
+    );
     let insertedStancesCount = 0;
 
     if (miraiFaction) {

@@ -1,3 +1,23 @@
+/**
+ * 札幌市議会版・開発用シードデータ
+ *
+ * ## 設計意図
+ * - 本ファイルは **ローカル開発・動作確認用の fixture**。本番運用データではない。
+ * - `pnpm db:reset` 経由で `clearAllData` → 全件再投入する破壊的シードなので、本番DBには流さない。
+ * - とはいえ「ダミー」では UI 検証がしにくいため、定例会・会派・委員会は札幌市議会の実データを使用。
+ * - 本番の運用フロー: 管理画面 (admin) で人手投入 or CSV import (`packages/seed/csv/`)。
+ *   この data.ts を運用に組み込まない理由は (a) 会派は選挙で変動 (b) clearAllData が
+ *   AI生成済みコンテンツ（インタビュー結果・要約等）を破壊するため。
+ *
+ * ## メンテナンス
+ * - 統一地方選後・会派異動時に手で更新する（自動同期はしない）
+ * - 出典:
+ *   - 会派: https://www.city.sapporo.jp/gikai/meibo/meibo-kaiha.html
+ *   - 常任委員会: https://www.city.sapporo.jp/gikai/meibo/meibo-iinkai.html
+ *   - 定例会日程: https://www.city.sapporo.jp/gikai/html/kaiginittei.html
+ * - 議案 (bills) はサンプルダミー（実在しない、UI検証用）
+ */
+
 import type { Database } from "@mirai-gikai/supabase";
 
 type BillInsert = Database["public"]["Tables"]["bills"]["Insert"];
@@ -20,114 +40,137 @@ type InterviewMessageInsert =
 type InterviewReportInsert =
   Database["public"]["Tables"]["interview_report"]["Insert"];
 
-// 定例会データ
+// 定例会データ（札幌市議会）
+// ※ 第1回の start/end は公式の開閉会日が公開ページに明記されていなかったため、
+//   議案提出日（2/12）〜主な議決日（3/26）で近似。確定値が取れたら手で更新。
 export const councilSessions: CouncilSessionInsert[] = [
   {
-    name: "令和8年 第1回定例会（2・3月）",
-    slug: "r8-1",
-    council_url: "https://gikai.city.fukuoka.lg.jp/schedule/regular/",
-    start_date: "2026-02-17",
-    end_date: "2026-03-27",
+    name: "令和8年 第2回定例会（5・6月）",
+    slug: "r8-2",
+    council_url: "https://www.city.sapporo.jp/gikai/html/kaiginittei.html",
+    start_date: "2026-05-21",
+    end_date: "2026-06-05",
     is_active: true,
   },
   {
-    name: "令和7年 第4回定例会（12月）",
-    slug: "r7-4",
-    council_url: "https://gikai.city.fukuoka.lg.jp/schedule/regular/",
-    start_date: "2025-12-01",
-    end_date: "2025-12-19",
+    name: "令和8年 第1回定例会（2・3月）",
+    slug: "r8-1",
+    council_url: "https://www.city.sapporo.jp/gikai/html/giantouichiran0801t.html",
+    start_date: "2026-02-12",
+    end_date: "2026-03-26",
     is_active: false,
   },
 ];
 
-// 会派データ（福岡市議会 2026年3月時点）
+// 会派データ（札幌市議会 2026年4月時点・議席数順）
+// 出典: https://www.city.sapporo.jp/gikai/meibo/meibo-kaiha.html
 export const factions: FactionInsert[] = [
   {
-    name: "mirai",
-    display_name: "みらい",
+    name: "jimin-sapporo",
+    display_name: "自由民主党",
     sort_order: 1,
     is_active: true,
   },
   {
-    name: "jimin-fukuoka",
-    display_name: "自由民主党福岡市議団",
+    name: "minshu-shimin-sapporo",
+    display_name: "民主市民連合",
     sort_order: 2,
     is_active: true,
   },
   {
-    name: "komei",
-    display_name: "公明党福岡市議団",
+    name: "komei-sapporo",
+    display_name: "公明党",
     sort_order: 3,
     is_active: true,
   },
   {
-    name: "fukuoka-shimin",
-    display_name: "福岡市民クラブ",
+    name: "kyosan-sapporo",
+    display_name: "日本共産党",
     sort_order: 4,
     is_active: true,
   },
   {
-    name: "kyosan",
-    display_name: "日本共産党福岡市議団",
+    name: "sakamoto-arai-sapporo",
+    display_name: "坂元・荒井",
     sort_order: 5,
     is_active: true,
   },
   {
-    name: "atarashii-kaze",
-    display_name: "新しい風ふくおか",
+    name: "yamaguchi-kazusa-sapporo",
+    display_name: "山口かずさ",
     sort_order: 6,
     is_active: true,
   },
   {
-    name: "ishin",
-    display_name: "日本維新の会福岡市議団",
+    name: "mirai-sapporo",
+    display_name: "未来さっぽろ",
     sort_order: 7,
     is_active: true,
   },
   {
-    name: "jimin-shin-fukuoka",
-    display_name: "自民党新福岡",
+    name: "kenko-sapporo",
+    display_name: "健康さっぽろ",
     sort_order: 8,
     is_active: true,
   },
   {
-    name: "mushozoku",
-    display_name: "無所属",
+    name: "daichi-sapporo",
+    display_name: "大地さっぽろ",
     sort_order: 9,
+    is_active: true,
+  },
+  {
+    name: "shimin-network-sapporo",
+    display_name: "市民ネットワーク北海道",
+    sort_order: 10,
+    is_active: true,
+  },
+  {
+    name: "ishin-sapporo",
+    display_name: "日本維新の会",
+    sort_order: 11,
     is_active: true,
   },
 ];
 
-// 委員会データ（福岡市議会 常任委員会）
+// 委員会データ（札幌市議会 常任委員会）
+// 出典: https://www.city.sapporo.jp/gikai/meibo/meibo-iinkai.html
+// ※ 議会運営委員会・特別委員会は対象外（必要になったら追加）
 export const committees: CommitteeInsert[] = [
   {
-    name: "総務財政委員会",
-    description: "総務、財政、企画、税務などについての審査",
+    name: "総務委員会",
+    description: "一般行政事務、危機管理、選挙、人事などについての審査",
     sort_order: 1,
     is_active: true,
   },
   {
-    name: "教育こども委員会",
-    description: "教育、こども、保育、学校などについての審査",
+    name: "財政市民委員会",
+    description: "財政、税務、市民生活、男女共同参画などについての審査",
     sort_order: 2,
     is_active: true,
   },
   {
-    name: "経済振興委員会",
-    description: "産業、観光、農業、商工業などについての審査",
+    name: "文教委員会",
+    description: "教育、学校、文化、子ども・子育てなどについての審査",
     sort_order: 3,
     is_active: true,
   },
   {
-    name: "福祉都市委員会",
-    description: "福祉、保健、医療、都市整備などについての審査",
+    name: "厚生委員会",
+    description: "保健、医療、福祉、高齢者・障がい者支援などについての審査",
     sort_order: 4,
     is_active: true,
   },
   {
-    name: "生活環境委員会",
-    description: "環境、ごみ、水道、交通などについての審査",
+    name: "建設委員会",
+    description: "道路、河川、都市計画、住宅、雪対策などについての審査",
     sort_order: 5,
+    is_active: true,
+  },
+  {
+    name: "経済観光委員会",
+    description: "産業、観光、農業、商工業、雇用などについての審査",
+    sort_order: 6,
     is_active: true,
   },
 ];
@@ -151,17 +194,18 @@ export const tags: TagInsert[] = [
   },
 ];
 
+// ※ サンプル議案（架空・UI検証用）。実在する札幌市議会の議案ではない。
 export const bills: BillInsert[] = [
   {
-    name: "福岡市子ども医療費助成条例の一部改正",
+    name: "札幌市子ども医療費助成条例の一部改正",
     status: "in_committee",
-    status_note: "文教委員会で審査中",
+    status_note: "厚生委員会で審査中",
     published_at: "2025-11-25T09:00:00+09:00",
     publish_status: "published",
     is_featured: true,
   },
   {
-    name: "福岡市地域包括ケアシステム推進条例",
+    name: "札幌市地域包括ケアシステム推進条例",
     status: "approved",
     status_note: "本会議で可決",
     published_at: "2025-09-15T10:00:00+09:00",
@@ -169,7 +213,7 @@ export const bills: BillInsert[] = [
     is_featured: true,
   },
   {
-    name: "福岡市公園条例の一部改正",
+    name: "札幌市冬期路面管理条例の一部改正",
     status: "rejected",
     status_note: "本会議で否決",
     published_at: "2025-10-01T09:00:00+09:00",
@@ -177,7 +221,7 @@ export const bills: BillInsert[] = [
     is_featured: false,
   },
   {
-    name: "福岡市学校給食費の無償化に関する条例",
+    name: "札幌市学校給食費の無償化に関する条例",
     status: "approved",
     status_note: "本会議で可決、来年度から実施",
     published_at: "2025-09-10T09:00:00+09:00",
@@ -185,7 +229,7 @@ export const bills: BillInsert[] = [
     is_featured: false,
   },
   {
-    name: "福岡市防災対策基本条例の一部改正",
+    name: "札幌市観光振興条例の一部改正",
     status: "rejected",
     status_note: "本会議で否決",
     published_at: "2025-09-20T10:00:00+09:00",
@@ -200,11 +244,11 @@ export function createBillsTags(
   insertedTags: { id: string; label: string }[]
 ): Omit<BillsTagsInsert, "id" | "created_at">[] {
   const billTagMap: { [billName: string]: string[] } = {
-    "福岡市子ども医療費助成条例の一部改正": ["子育て・教育"],
-    "福岡市地域包括ケアシステム推進条例": ["福祉・医療"],
-    "福岡市公園条例の一部改正": ["まちづくり・環境"],
-    "福岡市学校給食費の無償化に関する条例": ["子育て・教育"],
-    "福岡市防災対策基本条例の一部改正": ["まちづくり・環境"],
+    "札幌市子ども医療費助成条例の一部改正": ["子育て・教育"],
+    "札幌市地域包括ケアシステム推進条例": ["福祉・医療"],
+    "札幌市冬期路面管理条例の一部改正": ["まちづくり・環境"],
+    "札幌市学校給食費の無償化に関する条例": ["子育て・教育"],
+    "札幌市観光振興条例の一部改正": ["まちづくり・環境"],
   };
 
   const billsTags: Omit<BillsTagsInsert, "id" | "created_at">[] = [];
@@ -234,31 +278,31 @@ const factionStancesData: Omit<
     type: "for",
     comment: `子どもの医療費助成の拡充は、子育て世代の経済的負担を軽減する重要な施策です。
 
-福岡市の子育て環境をより良くし、安心して子育てできるまちづくりに貢献すると考えます。`,
+札幌市の子育て環境をより良くし、安心して子育てできるまちづくりに貢献すると考えます。`,
   },
   {
     type: "for",
-    comment: `高齢化が進む中、地域包括ケアシステムの推進は福岡市にとって重要な課題です。
+    comment: `高齢化が進む中、地域包括ケアシステムの推進は札幌市にとって重要な課題です。
 
 医療・介護・予防・住まい・生活支援を一体的に提供する体制の整備は、市民の安心につながります。`,
   },
   {
     type: "for",
-    comment: `公園は市民の憩いの場であり、防災拠点としても重要です。
+    comment: `冬期の道路除排雪は、札幌市民の生活と経済活動を支える基盤です。
 
-この条例改正により、公園の利活用が促進され、地域コミュニティの活性化が期待できます。`,
+この条例改正により、優先路線の見直しと地域協働による排雪体制の強化が期待でき、高齢者世帯の安全な外出にも寄与します。`,
   },
   {
     type: "for",
     comment: `学校給食の無償化は、子育て支援と教育の充実を同時に実現する重要な政策です。
 
-全ての子どもが質の高い食事を平等に受けられることは、健康格差の解消にもつながります。福岡市の地元食材を活用した食育の推進も期待できます。`,
+全ての子どもが質の高い食事を平等に受けられることは、健康格差の解消にもつながります。北海道産食材を活用した食育の推進も期待できます。`,
   },
   {
     type: "against",
-    comment: `防災対策の強化は重要ですが、現行条例の運用改善で対応できる部分も多いと考えます。
+    comment: `観光振興は重要ですが、現行条例の運用改善で対応できる部分も多いと考えます。
 
-条例改正よりも先に、現場レベルでの防災訓練の充実や地域防災力の向上に注力すべきです。`,
+条例改正よりも先に、既存の観光資源（雪まつり・大通公園など）の磨き上げや、市民生活と観光の両立に注力すべきです。`,
   },
 ];
 
@@ -618,7 +662,7 @@ export function createDemoMessages(): Omit<
       interview_session_id: DEMO_SESSION_ID,
       role: "assistant",
       content:
-        "こんにちは！本日はインタビューにご協力いただきありがとうございます。\n\n福岡市議会で審議されている議案について、市民の皆さまのご意見をお聞かせください。この議案について、どのようにお考えですか？",
+        "こんにちは！本日はインタビューにご協力いただきありがとうございます。\n\n札幌市議会で審議されている議案について、市民の皆さまのご意見をお聞かせください。この議案について、どのようにお考えですか？",
     },
     {
       interview_session_id: DEMO_SESSION_ID,
@@ -630,7 +674,7 @@ export function createDemoMessages(): Omit<
       interview_session_id: DEMO_SESSION_ID,
       role: "assistant",
       content:
-        "なるほど。市政のデジタル化を通じて、行政サービスの効率化と市民の利便性向上を期待されているということですね。とても重要な指摘だと思います。\n\n具体的に、福岡市のどのような行政手続きや窓口サービスがデジタル化されると良いとお考えですか？",
+        "なるほど。市政のデジタル化を通じて、行政サービスの効率化と市民の利便性向上を期待されているということですね。とても重要な指摘だと思います。\n\n具体的に、札幌市のどのような行政手続きや窓口サービスがデジタル化されると良いとお考えですか？",
     },
     {
       interview_session_id: DEMO_SESSION_ID,
@@ -656,7 +700,7 @@ export function createDemoReport(): InterviewReportInsert {
     summary: "期待と懸念両方がある",
     role: "subject_expert",
     role_description:
-      "福岡市在住の会社員\n行政手続きの煩雑さを日常的に感じている",
+      "札幌市在住の会社員\n行政手続きの煩雑さを日常的に感じている",
     opinions: [
       {
         title:
@@ -812,7 +856,7 @@ export function createAdditionalDemoReports(): InterviewReportInsert[] {
         "子育て世帯として医療費負担軽減のため賛成",
       role: "work_related",
       role_description:
-        "福岡市在住の共働き世帯\n子ども2人\n医療費の負担を日常的に感じている",
+        "札幌市在住の共働き世帯\n子ども2人\n医療費の負担を日常的に感じている",
       opinions: [
         {
           title: "子どもの医療費負担が大きい",
@@ -830,7 +874,7 @@ export function createAdditionalDemoReports(): InterviewReportInsert[] {
         "子育て中の保護者として医療費負担軽減を期待",
       role: "daily_life_affected",
       role_description:
-        "福岡市在住の主婦\n小さい子ども2人の子育て中\n医療費の自己負担を日常的に感じている",
+        "札幌市在住の主婦\n小さい子ども2人の子育て中\n医療費の自己負担を日常的に感じている",
       opinions: [
         {
           title: "子どもの医療費負担が大きい",
@@ -848,7 +892,7 @@ export function createAdditionalDemoReports(): InterviewReportInsert[] {
         "財源と子育て支援のバランスを考慮して判断",
       role: "general_citizen",
       role_description:
-        "福岡市在住の会社員\n子育て支援に関心あり\n市の財政にも関心がある",
+        "札幌市在住の会社員\n子育て支援に関心あり\n市の財政にも関心がある",
       opinions: [
         {
           title: "財源と子育て支援のバランス",
