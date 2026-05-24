@@ -3,11 +3,11 @@
  * Fork して別の地方議会向けに使用する場合はこのファイルを変更してください。
  */
 export const siteConfig = {
-  siteName: "みらい議会ー福岡市版",
-  cityName: "福岡市",
-  councilName: "福岡市議会",
-  councilBaseUrl: "https://gikai.city.fukuoka.lg.jp/",
-  councilBillsDetailUrl: "https://gikai.city.fukuoka.lg.jp/result/result/",
-  councilFactionExamples:
-    "自由民主党福岡市議団、公明党福岡市議団、福岡市民クラブ等",
+  siteName: "みらい議会ー札幌市版",
+  cityName: "札幌市",
+  councilName: "札幌市議会",
+  councilBaseUrl: "https://www.city.sapporo.jp/gikai/",
+  councilBillsDetailUrl:
+    "https://www.city.sapporo.jp/gikai/html/giantouichiran.html",
+  councilFactionExamples: "自由民主党、民主市民連合、公明党、日本共産党 等",
 } as const;

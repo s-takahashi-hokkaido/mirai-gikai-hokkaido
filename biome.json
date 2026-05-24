@@ -44,6 +44,11 @@
       "enabled": true
     }
   },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
   "files": {
     "includes": ["web/src/**/*", "admin/src/**/*", "tests/**/*"]
   }
