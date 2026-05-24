@@ -15,8 +15,8 @@ export type FactionRecord = {
  *
  * 部分一致は使用しない。
  * 略称・旧称など全ての別表記は alternative_names に明示登録することで対応する。
- * 部分一致を許可すると「川崎市議会議員団」が「自由民主党川崎市議会議員団」など
- * 別の会派に誤マッチする問題が生じるため、完全一致のみとする。
+ * 部分一致を許可すると部分文字列が別の会派に誤マッチする問題が
+ * 生じるため、完全一致のみとする。
  */
 export function findFactionByName(
   factions: FactionRecord[],
