@@ -14,13 +14,14 @@ export function Hero() {
         sizes="100vw"
         quality={85}
       />
+      <div className="absolute inset-0 bg-black/35" />
       <div className="absolute bottom-[30vh] left-0 right-0 py-4">
         <Container>
-          <p className="font-bold text-xl md:text-2xl leading-relaxed">
+          <p className="font-bold text-xl md:text-2xl leading-relaxed text-white">
             いま{siteConfig.councilName}で議論されていること <br />
             やさしい言葉で説明します
           </p>
-          <p className="mt-2 font-lexend text-xs">
+          <p className="mt-2 font-lexend text-xs text-white">
             {/* 表示したい場合は `powered by ${siteConfig.operator.name}` とかで*/}
             {siteConfig.features.showTeamMiraiSection
               ? "powered by Team Mirai & AI"
@@ -31,8 +32,8 @@ export function Hero() {
 
       {/* スクロールインジケーター */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center animate-bounce-gentle">
-        <div className="w-[1px] h-[34px] bg-black"></div>
-        <p className="mt-2 font-lexend text-[10px] leading-[20px] text-black">
+        <div className="w-[1px] h-[34px] bg-white"></div>
+        <p className="mt-2 font-lexend text-[10px] leading-[20px] text-white">
           Scroll
         </p>
       </div>
