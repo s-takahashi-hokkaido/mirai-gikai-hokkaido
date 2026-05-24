@@ -30,9 +30,17 @@ cd ../mirai-gikai-<branch-name> && pnpm install --frozen-lockfile
 gh pr create --base develop ...
 ```
 
-### Codexレビュー必須
-実装完了後（コミット前）に、必ず `/review-codex` スキルを実行してCodex CLIによるコードレビューを受けること。指摘があれば修正してからコミットする。
-Codexレビューを通過したら、ユーザーに確認せずそのままPR作成まで一気に進めること（push → `gh pr create --base develop`）。
+### コードレビュー必須
+実装完了後（コミット前）に、必ずコードレビューを受けること。指摘があれば修正してからコミットする。
+レビューを通過したら、ユーザーに確認せずそのままコミット → push まで一気に進めること。
+
+- **PR を作成する場合**: push 後に `/review <PR番号>` スキル（Claude Code 標準）でレビュー
+- **直接 `develop` に push する場合（ソロ開発の運用時）**: コミット前に Claude（このセッション）が
+  `git diff HEAD` の自己レビューを実施し、指摘ゼロを確認してからコミットする
+
+> **Note**: 北海道版は Codex CLI を使用しない（Claude のみ契約）。
+> 福岡市版（upstream）では `/review-codex`（Codex CLI レビュー）が必須化されていたが、
+> 北海道版では Claude Code 標準のレビューに置き換えている。
 
 ### 並列PR作成
 複数の独立したPRを作成する場合は `/parallel-pr` スキルを使用すること。
