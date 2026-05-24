@@ -64,12 +64,12 @@ export const mockGeneralQuestions: GeneralQuestion[] = [
     id: "q-001",
     council_session_id: "session-r7-5",
     questioner_name: "山田ゆみこ",
-    questioner_party: "福岡市民クラブ",
+    questioner_party: "民主市民連合",
     questioner_number: 1,
     session_day: 1,
     question_order: 1,
     summary:
-      "子育て支援の充実・市営スポーツ施設の老朽化対策・漁港の管理体制について質問した。",
+      "子育て支援の充実・市営スポーツ施設の老朽化対策・除排雪体制について質問した。",
     topics: [
       {
         title: "保育所の待機児童対策",
@@ -86,16 +86,16 @@ export const mockGeneralQuestions: GeneralQuestion[] = [
           "築40年を超える市営プールの改修計画と財源確保の見通しを示せ。",
         answer_summary:
           "長寿命化計画に基づき令和9〜11年度で大規模改修を実施予定。国の社会資本整備総合交付金を最大限活用する。",
-        answerer_role: "市民局長",
+        answerer_role: "スポーツ局長",
         answerer_name: "舟越伸一",
       },
       {
-        title: "漁港の管理体制の強化",
+        title: "生活道路の除排雪体制の強化",
         question_summary:
-          "能古島・志賀島の漁港施設の老朽化が進んでいるが、修繕計画と地元漁協との連携状況はどうか。",
+          "住宅街の生活道路における除排雪が追いついていないが、作業体制の拡充と地域との連携状況はどうか。",
         answer_summary:
-          "年次点検に基づき優先度の高い箇所から順次修繕を実施。地元漁協と定期的な協議の場を設け、現場ニーズを計画に反映している。",
-        answerer_role: "農林水産局長",
+          "除雪パートナーシップ制度の参加町内会を拡大し、排雪回数を年3回から4回に増加。地域と定期的な協議の場を設け、現場ニーズを計画に反映している。",
+        answerer_role: "建設局長",
         answerer_name: "坂本健二",
       },
     ],
@@ -109,20 +109,20 @@ export const mockGeneralQuestions: GeneralQuestion[] = [
     id: "q-002",
     council_session_id: "session-r7-5",
     questioner_name: "堀内徹夫",
-    questioner_party: "自民党福岡市議団",
+    questioner_party: "自由民主党",
     questioner_number: 2,
     session_day: 1,
     question_order: 2,
     summary:
-      "福岡市の防災・減災対策と、能登半島地震を踏まえた木造密集市街地の耐震化促進について質問した。",
+      "札幌市の防災・減災対策と、能登半島地震を踏まえた木造密集市街地の耐震化促進について質問した。",
     topics: [
       {
         title: "木造密集市街地の耐震化促進",
         question_summary:
-          "能登半島地震の教訓を踏まえ、博多区・中央区の木造密集市街地における耐震診断・改修の補助制度拡充を求める。",
+          "能登半島地震の教訓を踏まえ、中央区・白石区の木造密集市街地における耐震診断・改修の補助制度拡充を求める。",
         answer_summary:
           "令和8年度から耐震改修補助の上限額を100万円から150万円に引き上げ。無料耐震診断の周知強化と戸別訪問も実施する。",
-        answerer_role: "住宅都市局長",
+        answerer_role: "都市局長",
         answerer_name: "松本雅彦",
       },
       {
@@ -131,7 +131,7 @@ export const mockGeneralQuestions: GeneralQuestion[] = [
           "指定避難所のトイレ・備蓄食料の見直しと、ペット同行避難への対応強化を求める。",
         answer_summary:
           "マンホールトイレの設置箇所を現在の80カ所から令和9年度末までに120カ所に拡大。ペット同行避難は専用スペース設置を全避難所に展開する。",
-        answerer_role: "市民局長",
+        answerer_role: "危機管理局長",
         answerer_name: "舟越伸一",
       },
     ],
@@ -145,7 +145,7 @@ export const mockGeneralQuestions: GeneralQuestion[] = [
     id: "q-003",
     council_session_id: "session-r7-5",
     questioner_name: "中山郁美",
-    questioner_party: "公明党福岡市議団",
+    questioner_party: "公明党",
     questioner_number: 3,
     session_day: 2,
     question_order: 1,
@@ -158,7 +158,7 @@ export const mockGeneralQuestions: GeneralQuestion[] = [
           "免許返納後の高齢者が増加している。コミュニティバスの路線拡充やタクシー助成の拡大について市の方針を問う。",
         answer_summary:
           "デマンド型交通の試験導入を令和8年度に3地区で開始予定。タクシー助成についても対象年齢・回数の拡充を検討中。",
-        answerer_role: "道路下水道局長",
+        answerer_role: "まちづくり政策局長",
         answerer_name: "吉田浩二",
       },
       {
@@ -166,8 +166,8 @@ export const mockGeneralQuestions: GeneralQuestion[] = [
         question_summary:
           "スマートフォン操作に不慣れな高齢者へのサポート体制が不十分。市として無料講習会の拡充を求める。",
         answer_summary:
-          "地域コミュニティセンターでの月2回の講習会を令和8年度から週1回に増やす。図書館でのタブレット貸出も拡大する。",
-        answerer_role: "総務企画局長",
+          "まちづくりセンターでの月2回の講習会を令和8年度から週1回に増やす。図書館でのタブレット貸出も拡大する。",
+        answerer_role: "デジタル戦略推進局長",
         answerer_name: "川原正人",
       },
       {
@@ -190,7 +190,7 @@ export const mockGeneralQuestions: GeneralQuestion[] = [
     id: "q-004",
     council_session_id: "session-r7-5",
     questioner_name: "新村まさる",
-    questioner_party: "新しい風ふくおか",
+    questioner_party: "市民ネットワーク北海道",
     questioner_number: 4,
     session_day: 2,
     question_order: 2,
@@ -211,7 +211,7 @@ export const mockGeneralQuestions: GeneralQuestion[] = [
         question_summary:
           "断熱リフォームや高効率給湯器への補助制度が分かりにくい。ワンストップ相談窓口の設置を求める。",
         answer_summary:
-          "令和8年4月から住宅エネルギー相談窓口を各区役所に設置。国・県・市の補助を一括案内する体制を整備する。",
+          "令和8年4月から住宅エネルギー相談窓口を各区役所に設置。国・道・市の補助を一括案内する体制を整備する。",
         answerer_role: "環境局長",
         answerer_name: "林田将也",
       },
@@ -226,29 +226,29 @@ export const mockGeneralQuestions: GeneralQuestion[] = [
     id: "q-005",
     council_session_id: "session-r7-5",
     questioner_name: "倉元達朗",
-    questioner_party: "自民党福岡市議団",
+    questioner_party: "自由民主党",
     questioner_number: 5,
     session_day: 3,
     question_order: 1,
     summary:
-      "福岡空港の機能強化・都心部の渋滞対策・地下鉄七隈線延伸について質問した。",
+      "丘珠空港の利活用・都心部の渋滞対策・地下鉄延伸構想について質問した。",
     topics: [
       {
-        title: "福岡空港第2滑走路の運用開始後の課題",
+        title: "丘珠空港の利活用と周辺住民への配慮",
         question_summary:
-          "第2滑走路運用開始後の騒音問題への対応と、周辺住民への説明状況を問う。",
+          "丘珠空港の滑走路延伸構想に伴う騒音問題への対応と、周辺住民への説明状況を問う。",
         answer_summary:
           "騒音測定局を新たに3カ所追加設置。住民説明会を年4回開催し、防音工事助成の対象区域拡大も検討中。",
         answerer_role: "市長",
-        answerer_name: "髙島宗一郎",
+        answerer_name: "秋元克広",
       },
       {
         title: "都心部の慢性的渋滞解消",
         question_summary:
-          "博多駅周辺の渋滞が慢性化している。信号制御の最適化とパークアンドライドの拡充策を問う。",
+          "札幌駅周辺の渋滞が慢性化している。信号制御の最適化とパークアンドライドの拡充策を問う。",
         answer_summary:
           "AIを活用した信号制御最適化を令和8年度から主要交差点30カ所に導入。パークアンドライド駐車場を2カ所新設予定。",
-        answerer_role: "道路下水道局長",
+        answerer_role: "建設局長",
         answerer_name: "吉田浩二",
       },
     ],
@@ -262,7 +262,7 @@ export const mockGeneralQuestions: GeneralQuestion[] = [
     id: "q-006",
     council_session_id: "session-r7-5",
     questioner_name: "天野こう",
-    questioner_party: "日本共産党福岡市議団",
+    questioner_party: "日本共産党",
     questioner_number: 6,
     session_day: 3,
     question_order: 2,
@@ -272,10 +272,10 @@ export const mockGeneralQuestions: GeneralQuestion[] = [
       {
         title: "国民健康保険料の引き下げ",
         question_summary:
-          "福岡市の国保料は政令市の中でも高水準。一般会計からの繰り入れを増やし引き下げを求める。",
+          "札幌市の国保料は政令市の中でも高水準。一般会計からの繰り入れを増やし引き下げを求める。",
         answer_summary:
-          "国保の財政運営は都道府県単位に移行しており、市単独での引き下げは困難。国・県への要請を続ける。",
-        answerer_role: "保健医療局長",
+          "国保の財政運営は都道府県単位に移行しており、市単独での引き下げは困難。国・道への要請を続ける。",
+        answerer_role: "保健福祉局長",
         answerer_name: "中村仁志",
       },
       {
@@ -284,7 +284,7 @@ export const mockGeneralQuestions: GeneralQuestion[] = [
           "子ども食堂への補助額が少ない。運営団体の持続可能性を高めるため補助上限の引き上げを求める。",
         answer_summary:
           "令和8年度から子ども食堂への補助上限を年15万円から20万円に引き上げ。食材提供ネットワークの拡充も支援する。",
-        answerer_role: "こども局長",
+        answerer_role: "子ども未来局長",
         answerer_name: "浜田理恵",
       },
     ],

@@ -8,7 +8,7 @@ import {
 const sampleBill: BillForEval = {
   id: "bill-1",
   bill_number: "第1号",
-  name: "福岡市保育所条例の一部を改正する条例",
+  name: "札幌市保育所条例の一部を改正する条例",
   title: "保育料の無償化拡大",
   summary: "第2子以降の保育料を無償化する。",
   content:
