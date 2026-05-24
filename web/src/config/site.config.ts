@@ -1,7 +1,7 @@
 /**
  * サイト設定ファイル
  * Fork して別の地方議会向けに使用する場合はこのファイルを変更してください。
- * @see docs/kawasaki/20260304_1000_別地域向けfork手順.md
+ * @see docs/20260520_1900_札幌市版FORK_GUIDELINES適応手順書.md
  */
 export const siteConfig = {
   siteName: "みらい議会＠札幌市",

@@ -62,7 +62,7 @@ export function CouncilSessionBillList({ session, bills }: Props) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1"
           >
-            川崎市議会情報へ
+            札幌市議会情報へ
             <ExternalLink className="h-3 w-3" />
           </a>
         </div>
