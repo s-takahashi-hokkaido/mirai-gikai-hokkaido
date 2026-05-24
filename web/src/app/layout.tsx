@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   keywords: [...siteConfig.keywords],
   icons: {
     icon: "/icons/pwa/icon_sapporo.svg",
-    apple: "/icons/pwa/icon_sapporo.svg",
+    apple: "/icons/pwa/icon_ios.png",
   },
   manifest: "/manifest.json",
   openGraph: {
