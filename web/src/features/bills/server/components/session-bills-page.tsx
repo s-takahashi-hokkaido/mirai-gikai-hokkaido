@@ -80,7 +80,7 @@ export function SessionBillsPage({ session, bills }: SessionBillsPageProps) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1"
           >
-            福岡市議会情報へ
+            札幌市議会情報へ
             <ExternalLink className="h-3 w-3" />
           </a>
         </div>

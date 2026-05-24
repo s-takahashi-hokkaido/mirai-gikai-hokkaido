@@ -251,7 +251,7 @@ function buildBudgetPrompt(context: ChatMessageMetadata) {
       })
       .join("\n\n") ?? "";
 
-  const content = `あなたは福岡市の予算概要を市民にわかりやすく説明するAIアシスタントです。
+  const content = `あなたは札幌市の予算概要を市民にわかりやすく説明するAIアシスタントです。
 
 ## 対象局の情報
 - 局名: ${budget?.departmentName ?? ""}
