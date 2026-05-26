@@ -93,11 +93,20 @@ async function main() {
       publish_status: "published" as const,
     };
 
-    // 議案をupsert
-    const { error } = await supabase.from("bills").upsert(record, {
-      onConflict: "council_session_id,bill_number,bill_type",
-      ignoreDuplicates: false,
-    });
+    const { data: existing } = await supabase
+      .from("bills")
+      .select("id")
+      .eq("council_session_id", councilSessionId)
+      .eq("bill_number", bill.billNumber)
+      .eq("bill_type", "bill")
+      .maybeSingle();
+
+    const { error } = existing
+      ? await supabase
+          .from("bills")
+          .update(record)
+          .eq("id", existing.id)
+      : await supabase.from("bills").insert(record);
 
     // エラーが発生した場合はエラー
     if (error) {
