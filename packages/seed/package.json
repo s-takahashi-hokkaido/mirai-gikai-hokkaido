@@ -7,6 +7,7 @@
     "seed": "tsx main/run.ts",
     "seed:csv": "tsx csv/import-csv.ts",
     "scrape:bills": "tsx --env-file=../../.env sapporo/scrape-bills.ts",
+    "scrape:minutes": "tsx --env-file=../../.env sapporo/scrape-minutes.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },

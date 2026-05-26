@@ -7,11 +7,13 @@ export const SESSIONS: Record<string, SessionConfig> = {
     slug: "r8-2",
     name: "令和8年 第2回定例会",
     billListUrl: `${BASE_URL}/giantouichiran.html`,
+    gijirokuYear: 2026,
   },
   "r8-1": {
     slug: "r8-1",
     name: "令和8年 第1回定例会",
     billListUrl: `${BASE_URL}/giantouichiran0801t.html`,
+    gijirokuYear: 2025,
   },
 };
 
