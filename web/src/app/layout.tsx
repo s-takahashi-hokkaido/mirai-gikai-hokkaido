@@ -58,9 +58,10 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  verification: {
-    google: "fzIXRquRrvSqvoV072nopGQ-wiWv8dSpJSwPwIMAQvs",
-  },
+  // TODO: デプロイ後に札幌版の GSC 認証コードを設定する
+  // verification: {
+  //   google: "YOUR_GSC_VERIFICATION_CODE",
+  // },
 };
 
 export const viewport: Viewport = {

@@ -42,7 +42,7 @@ export const siteConfig = {
    * 利用規約や問い合わせ先に使用します。
    */
   operator: {
-    name: "高橋 崇一郎" as string,
+    name: "s.takahashi" as string,
     contactUrl: "https://x.com/s_t_politics" as string,
     /** 利用規約の準拠法・管轄裁判所（第一審の専属的合意管轄） */
     jurisdiction: "札幌地方裁判所" as string,
@@ -53,9 +53,9 @@ export const siteConfig = {
    */
   features: {
     /** AIチャット機能（議案への質問・テキスト選択からの質問）*/
-    aiChat: false,
+    aiChat: true,
     /** AIインタビュー機能（議案当事者へのヒアリング）*/
-    aiInterview: false,
+    aiInterview: true,
     /**
      * チームみらいセクションの表示（トップページ・フッター・デスクトップメニュー）
      * 非公式運営など、党の公式サービスとして出さない場合は false にする。
