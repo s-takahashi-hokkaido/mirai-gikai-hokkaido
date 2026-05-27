@@ -6,6 +6,9 @@
   "scripts": {
     "seed": "tsx main/run.ts",
     "seed:csv": "tsx csv/import-csv.ts",
+    "scrape:bills": "tsx --env-file=../../.env sapporo/scrape-bills.ts",
+    "scrape:minutes": "tsx --env-file=../../.env sapporo/scrape-minutes.ts",
+    "generate:bill-contents": "tsx --env-file=../../.env sapporo/generate-bill-contents.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
