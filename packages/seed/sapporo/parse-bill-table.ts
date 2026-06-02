@@ -25,8 +25,11 @@ export function parseJapaneseDate(raw: string): string | null {
 export function mapResultToStatus(result: string): BillStatusEnum {
   const r = result.trim();
   if (r.includes("可決")) return "approved";
+  if (r.includes("不同意")) return "rejected"; // 同意より先に判定
   if (r.includes("同意")) return "approved";
   if (r.includes("承認")) return "approved";
+  if (r.includes("不認定")) return "rejected"; // 認定より先に判定
+  if (r.includes("認定")) return "approved";
   if (r.includes("採択") && !r.includes("不採択")) return "adopted";
   if (r.includes("適当と認める")) return "approved"; // 諮問：「棄却することを適当と認める」等
   if (r.includes("否決")) return "rejected";
@@ -35,9 +38,9 @@ export function mapResultToStatus(result: string): BillStatusEnum {
   return "submitted";
 }
 
-// 議案種別判定
+// 議案種別判定（番号プレフィックスによる一次判定）
 function detectBillType(
-  numberText: string
+  numberText: string,
 ): "bill" | "consultation" | "opinion" | "petition" | "appeal" | "report" | null {
   if (numberText.startsWith("議案")) return "bill";
   if (numberText.startsWith("諮問")) return "consultation";
@@ -46,6 +49,19 @@ function detectBillType(
   if (numberText.startsWith("陳情")) return "appeal";
   if (numberText.startsWith("報告")) return "report";
   return null;
+}
+
+// 議案サブ種別の二次判定（bill のみ件名テキストで分類）
+export function refineBillType(
+  type: ScrapedBill["billType"],
+  name: string,
+): ScrapedBill["billType"] {
+  if (type !== "bill") return type;
+  if (name.includes("専決処分")) return "bill_ratification";
+  if (name.includes("決算")) return "bill_settlement";
+  if (name.includes("選任") || name.includes("委嘱") || name.includes("任命"))
+    return "bill_personnel";
+  return "bill";
 }
 
 // HTMLタグ除去
@@ -96,12 +112,14 @@ export function parseBillTable(html: string): ScrapedBill[] {
     if (cells.length < 5) continue;
 
     const numberText = extractText(cells[0]);
-    const type = detectBillType(numberText);
+    const rawType = detectBillType(numberText);
 
-    if (!type || type === "report") continue;
+    if (!rawType || rawType === "report") continue;
 
     const name = extractBillName(cells[1]);
     if (!name) continue;
+
+    const type = refineBillType(rawType, name);
 
     const submittedDate = parseJapaneseDate(extractText(cells[2]));
     const resolvedDate = parseJapaneseDate(extractText(cells[3]));

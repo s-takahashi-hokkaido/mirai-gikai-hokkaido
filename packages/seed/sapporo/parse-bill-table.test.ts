@@ -3,6 +3,7 @@ import {
   mapResultToStatus,
   parseBillTable,
   parseJapaneseDate,
+  refineBillType,
 } from "./parse-bill-table";
 
 describe("parseJapaneseDate", () => {
@@ -60,6 +61,18 @@ describe("mapResultToStatus", () => {
     expect(mapResultToStatus("採択")).toBe("adopted");
   });
 
+  it("認定 → approved（決算認定）", () => {
+    expect(mapResultToStatus("認定")).toBe("approved");
+  });
+
+  it("不認定 → rejected", () => {
+    expect(mapResultToStatus("不認定")).toBe("rejected");
+  });
+
+  it("不同意 → rejected（不同意が同意にマッチしないこと）", () => {
+    expect(mapResultToStatus("不同意")).toBe("rejected");
+  });
+
   it("不採択 → rejected", () => {
     expect(mapResultToStatus("不採択")).toBe("rejected");
   });
@@ -76,6 +89,42 @@ describe("mapResultToStatus", () => {
 
   it("empty → submitted", () => {
     expect(mapResultToStatus("")).toBe("submitted");
+  });
+});
+
+describe("refineBillType", () => {
+  it("bill 以外はそのまま返す", () => {
+    expect(refineBillType("consultation", "審査請求に関する件")).toBe("consultation");
+    expect(refineBillType("opinion", "意見書")).toBe("opinion");
+    expect(refineBillType("petition", "○○に関する請願")).toBe("petition");
+  });
+
+  it("件名に「専決処分」を含む → bill_ratification", () => {
+    expect(refineBillType("bill", "専決処分承認に関する件")).toBe("bill_ratification");
+  });
+
+  it("件名に「決算」を含む → bill_settlement", () => {
+    expect(refineBillType("bill", "令和7年度札幌市一般会計歳入歳出決算認定")).toBe("bill_settlement");
+  });
+
+  it("件名に「選任」を含む → bill_personnel", () => {
+    expect(refineBillType("bill", "固定資産評価審査委員会委員選任に関する件")).toBe("bill_personnel");
+  });
+
+  it("件名に「委嘱」を含む → bill_personnel", () => {
+    expect(refineBillType("bill", "人権擁護委員候補者委嘱に関する件")).toBe("bill_personnel");
+  });
+
+  it("件名に「任命」を含む → bill_personnel", () => {
+    expect(refineBillType("bill", "教育委員会委員任命に関する件")).toBe("bill_personnel");
+  });
+
+  it("通常の議案はそのまま bill", () => {
+    expect(refineBillType("bill", "令和8年度札幌市一般会計予算")).toBe("bill");
+  });
+
+  it("専決処分は決算より優先される", () => {
+    expect(refineBillType("bill", "決算に係る専決処分承認")).toBe("bill_ratification");
   });
 });
 
@@ -242,5 +291,49 @@ describe("parseBillTable", () => {
     const bills = parseBillTable(FIXTURE_PETITION_APPEAL);
     const types = bills.map((b) => b.billType);
     expect(types).not.toContain("report");
+  });
+
+  const FIXTURE_SUBTYPES = `
+<table width="100%">
+<tr>
+<th>番号</th><th>件名</th><th>本会議提出日</th><th>議決日</th><th>結果</th>
+</tr>
+<tr>
+<td align="left" valign="middle">議案第1号</td>
+<td align="left" valign="middle">令和7年度札幌市一般会計歳入歳出決算認定</td>
+<td align="left" valign="middle">令和8年9月10日</td>
+<td align="left" valign="middle">令和8年10月16日</td>
+<td style="text-align: center;" valign="middle">認定</td>
+</tr>
+<tr>
+<td align="left" valign="middle">議案第2号</td>
+<td align="left" valign="middle">固定資産評価審査委員会委員選任に関する件</td>
+<td align="left" valign="middle">令和8年9月10日</td>
+<td align="left" valign="middle">令和8年9月10日</td>
+<td style="text-align: center;" valign="middle">同意</td>
+</tr>
+<tr>
+<td align="left" valign="middle">議案第3号</td>
+<td align="left" valign="middle">専決処分承認に関する件</td>
+<td align="left" valign="middle">令和8年9月10日</td>
+<td align="left" valign="middle">令和8年9月10日</td>
+<td style="text-align: center;" valign="middle">承認</td>
+</tr>
+<tr>
+<td align="left" valign="middle">議案第4号</td>
+<td align="left" valign="middle">令和8年度札幌市一般会計補正予算（第3号）</td>
+<td align="left" valign="middle">令和8年9月10日</td>
+<td align="left" valign="middle">令和8年10月16日</td>
+<td style="text-align: center;" valign="middle">可決</td>
+</tr>
+</table>`;
+
+  it("bill サブ種別を件名テキストで正しく分類する", () => {
+    const bills = parseBillTable(FIXTURE_SUBTYPES);
+    expect(bills).toHaveLength(4);
+    expect(bills[0]).toMatchObject({ billType: "bill_settlement", result: "認定" });
+    expect(bills[1]).toMatchObject({ billType: "bill_personnel", result: "同意" });
+    expect(bills[2]).toMatchObject({ billType: "bill_ratification", result: "承認" });
+    expect(bills[3]).toMatchObject({ billType: "bill", result: "可決" });
   });
 });

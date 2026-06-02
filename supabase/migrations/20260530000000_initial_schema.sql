@@ -396,9 +396,9 @@ CASE "status"
     ELSE NULL::integer
 END) STORED, -- ステータスソート順(Generated Column)
     "source_url" "text", -- 出典URL
-    "bill_type" "text" DEFAULT 'bill'::"text" NOT NULL, -- 議案種別(bill/consultation/opinion/petition/appeal/report/resolution/member_bill)
+    "bill_type" "text" DEFAULT 'bill'::"text" NOT NULL, -- 議案種別(bill/bill_settlement/bill_personnel/bill_ratification/consultation/opinion/petition/appeal/report/resolution/member_bill)
     "discussion_overview_points" "text"[] DEFAULT '{}'::"text"[] NOT NULL, -- 議論概要ポイント
-    CONSTRAINT "bills_bill_type_check" CHECK (("bill_type" = ANY (ARRAY['bill'::"text", 'consultation'::"text", 'opinion'::"text", 'petition'::"text", 'appeal'::"text", 'report'::"text", 'resolution'::"text", 'member_bill'::"text"])))
+    CONSTRAINT "bills_bill_type_check" CHECK (("bill_type" = ANY (ARRAY['bill'::"text", 'bill_settlement'::"text", 'bill_personnel'::"text", 'bill_ratification'::"text", 'consultation'::"text", 'opinion'::"text", 'petition'::"text", 'appeal'::"text", 'report'::"text", 'resolution'::"text", 'member_bill'::"text"])))
 );
 
 
@@ -473,7 +473,7 @@ COMMENT ON COLUMN "public"."bills"."source_url" IS '出典URL（議案のPDF等�
 
 
 
-COMMENT ON COLUMN "public"."bills"."bill_type" IS '議案種別(bill:通常議案 / consultation:諮問 / opinion:意見書案 / petition:請願 / appeal:陳情 / report:報告 / resolution:決議 / member_bill:議員提出議案)';
+COMMENT ON COLUMN "public"."bills"."bill_type" IS '議案種別(bill:通常議案 / bill_settlement:決算認定 / bill_personnel:人事同意 / bill_ratification:専決処分承認 / consultation:諮問 / opinion:意見書案 / petition:請願 / appeal:陳情 / report:報告 / resolution:決議 / member_bill:議員提出議案)';
 
 
 
