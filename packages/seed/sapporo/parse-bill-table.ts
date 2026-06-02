@@ -27,7 +27,7 @@ export function mapResultToStatus(result: string): BillStatusEnum {
   if (r.includes("可決")) return "approved";
   if (r.includes("同意")) return "approved";
   if (r.includes("承認")) return "approved";
-  if (r.includes("採択") && !r.includes("不採択")) return "approved";
+  if (r.includes("採択") && !r.includes("不採択")) return "adopted";
   if (r.includes("適当と認める")) return "approved"; // 諮問：「棄却することを適当と認める」等
   if (r.includes("否決")) return "rejected";
   if (r.includes("不採択")) return "rejected";
@@ -98,7 +98,7 @@ export function parseBillTable(html: string): ScrapedBill[] {
     const numberText = extractText(cells[0]);
     const type = detectBillType(numberText);
 
-    if (!type || type === "petition" || type === "appeal" || type === "report") continue;
+    if (!type || type === "report") continue;
 
     const name = extractBillName(cells[1]);
     if (!name) continue;

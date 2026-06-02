@@ -56,6 +56,10 @@ describe("mapResultToStatus", () => {
     expect(mapResultToStatus("否決")).toBe("rejected");
   });
 
+  it("採択 → adopted", () => {
+    expect(mapResultToStatus("採択")).toBe("adopted");
+  });
+
   it("不採択 → rejected", () => {
     expect(mapResultToStatus("不採択")).toBe("rejected");
   });
@@ -135,11 +139,10 @@ describe("parseBillTable", () => {
     });
   });
 
-  it("skips 報告 and 陳情 rows", () => {
+  it("skips 報告 rows", () => {
     const bills = parseBillTable(FIXTURE_UNRESOLVED);
     const types = bills.map((b) => b.billType);
     expect(types).not.toContain("report");
-    expect(types).not.toContain("petition");
   });
 
   const FIXTURE_RESOLVED = `
@@ -184,5 +187,60 @@ describe("parseBillTable", () => {
       pdfUrl: null,
       result: "同意",
     });
+  });
+
+  const FIXTURE_PETITION_APPEAL = `
+<table width="100%">
+<tr>
+<th>番号</th><th>件名</th><th>本会議提出日</th><th>議決日</th><th>結果</th>
+</tr>
+<tr>
+<td align="left" height="21" valign="middle">請願第1号</td>
+<td align="left" valign="middle">○○に関する請願</td>
+<td style="text-align: center;" valign="middle">令和8年<br/>5月21日</td>
+<td style="text-align: center;" valign="middle">令和8年<br/>6月26日</td>
+<td style="text-align: center;" valign="middle">採択</td>
+</tr>
+<tr>
+<td align="left" height="21" valign="middle">陳情第1号</td>
+<td align="left" valign="middle">○○に関する陳情</td>
+<td style="text-align: center;" valign="middle">令和8年<br/>5月21日</td>
+<td style="text-align: center;" valign="middle">令和8年<br/>6月26日</td>
+<td style="text-align: center;" valign="middle">不採択</td>
+</tr>
+<tr>
+<td align="left" height="21" valign="middle">報告第1号</td>
+<td align="left" valign="middle">繰越計算書</td>
+<td style="text-align: center;" valign="middle">令和8年<br/>5月21日</td>
+<td style="text-align: center;" valign="middle">-</td>
+<td style="text-align: center;" valign="middle">-</td>
+</tr>
+</table>`;
+
+  it("parses 請願 and 陳情 rows", () => {
+    const bills = parseBillTable(FIXTURE_PETITION_APPEAL);
+    expect(bills).toHaveLength(2);
+
+    expect(bills[0]).toMatchObject({
+      billNumber: "請願第1号",
+      billType: "petition",
+      name: "○○に関する請願",
+      submittedDate: "2026-05-21",
+      resolvedDate: "2026-06-26",
+      result: "採択",
+    });
+
+    expect(bills[1]).toMatchObject({
+      billNumber: "陳情第1号",
+      billType: "appeal",
+      name: "○○に関する陳情",
+      result: "不採択",
+    });
+  });
+
+  it("still skips 報告 rows even when 請願・陳情 are present", () => {
+    const bills = parseBillTable(FIXTURE_PETITION_APPEAL);
+    const types = bills.map((b) => b.billType);
+    expect(types).not.toContain("report");
   });
 });
