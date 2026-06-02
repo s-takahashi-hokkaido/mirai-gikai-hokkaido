@@ -37,10 +37,12 @@ export function mapResultToStatus(result: string): BillStatusEnum {
 // 議案種別判定
 function detectBillType(
   numberText: string
-): "bill" | "consultation" | "petition" | "report" | null {
+): "bill" | "consultation" | "opinion" | "petition" | "appeal" | "report" | null {
   if (numberText.startsWith("議案")) return "bill";
   if (numberText.startsWith("諮問")) return "consultation";
-  if (numberText.startsWith("陳情")) return "petition";
+  if (numberText.startsWith("意見書案")) return "opinion";
+  if (numberText.startsWith("請願")) return "petition";
+  if (numberText.startsWith("陳情")) return "appeal";
   if (numberText.startsWith("報告")) return "report";
   return null;
 }
@@ -95,7 +97,7 @@ export function parseBillTable(html: string): ScrapedBill[] {
     const numberText = extractText(cells[0]);
     const type = detectBillType(numberText);
 
-    if (!type || type === "petition" || type === "report") continue;
+    if (!type || type === "petition" || type === "appeal" || type === "report") continue;
 
     const name = extractBillName(cells[1]);
     if (!name) continue;

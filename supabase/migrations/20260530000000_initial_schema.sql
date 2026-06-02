@@ -237,14 +237,14 @@ SET default_table_access_method = "heap";
 
 
 CREATE TABLE IF NOT EXISTS "public"."bill_contents" (
-    "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
-    "bill_id" "uuid" NOT NULL,
-    "difficulty_level" "public"."difficulty_level_enum" NOT NULL,
-    "title" "text" NOT NULL,
-    "summary" "text" NOT NULL,
-    "content" "text" NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL, -- ID
+    "bill_id" "uuid" NOT NULL, -- 議案ID
+    "difficulty_level" "public"."difficulty_level_enum" NOT NULL, -- 難易度レベル（normal:ふつう, hard:難しい）
+    "title" "text" NOT NULL, -- タイトル
+    "summary" "text" NOT NULL, -- 要約
+    "content" "text" NOT NULL, -- Markdown形式の議案内容
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 作成日時
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL -- 更新日時
 );
 
 
@@ -288,20 +288,20 @@ COMMENT ON COLUMN "public"."bill_contents"."updated_at" IS '更新日時';
 
 
 CREATE TABLE IF NOT EXISTS "public"."bill_discussions" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "bill_id" "uuid" NOT NULL,
-    "session_day" integer NOT NULL,
-    "questioner_name" "text" NOT NULL,
-    "questioner_number" "text",
-    "questioner_party" "text",
-    "question_summary" "text",
-    "question_raw" "text",
-    "answerer_role" "text",
-    "answerer_name" "text",
-    "answer_summary" "text",
-    "answer_raw" "text",
-    "exchange_count" integer DEFAULT 1 NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "bill_id" "uuid" NOT NULL, -- 議案ID
+    "session_day" integer NOT NULL, -- 開催日番号
+    "questioner_name" "text" NOT NULL, -- 質問者氏名
+    "questioner_number" "text", -- 質問者番号
+    "questioner_party" "text", -- 質問者会派
+    "question_summary" "text", -- 質問要約
+    "question_raw" "text", -- 質問原文
+    "answerer_role" "text", -- 回答者役職
+    "answerer_name" "text", -- 回答者氏名
+    "answer_summary" "text", -- 回答要約
+    "answer_raw" "text", -- 回答原文
+    "exchange_count" integer DEFAULT 1 NOT NULL, -- 質疑回数
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL -- 作成日時
 );
 
 
@@ -361,27 +361,27 @@ COMMENT ON COLUMN "public"."bill_discussions"."exchange_count" IS '質疑回数'
 
 
 CREATE TABLE IF NOT EXISTS "public"."bills" (
-    "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
-    "name" "text" NOT NULL,
-    "status" "public"."bill_status_enum" NOT NULL,
-    "status_note" "text",
-    "published_at" timestamp with time zone,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "thumbnail_url" "text",
-    "publish_status" "public"."bill_publish_status" DEFAULT 'draft'::"public"."bill_publish_status" NOT NULL,
-    "is_featured" boolean DEFAULT false NOT NULL,
-    "share_thumbnail_url" "text",
-    "council_session_id" "uuid",
-    "committee_id" "uuid",
+    "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL, -- ID
+    "name" "text" NOT NULL, -- 議案名
+    "status" "public"."bill_status_enum" NOT NULL, -- 議案のステータス
+    "status_note" "text", -- ステータス備考
+    "published_at" timestamp with time zone, -- サービスでの議案公開日時
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 作成日時
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 更新日時
+    "thumbnail_url" "text", -- サムネイル画像URL
+    "publish_status" "public"."bill_publish_status" DEFAULT 'draft'::"public"."bill_publish_status" NOT NULL, -- 公開状態(draft/coming_soon/published)
+    "is_featured" boolean DEFAULT false NOT NULL, -- 注目フラグ
+    "share_thumbnail_url" "text", -- シェア用OGP画像URL
+    "council_session_id" "uuid", -- 紐付けられた会期ID
+    "committee_id" "uuid", -- 委員会ID
     "publish_status_order" integer GENERATED ALWAYS AS (
 CASE "publish_status"
     WHEN 'draft'::"public"."bill_publish_status" THEN 0
     WHEN 'coming_soon'::"public"."bill_publish_status" THEN 1
     WHEN 'published'::"public"."bill_publish_status" THEN 2
     ELSE NULL::integer
-END) STORED,
-    "bill_number" "text" DEFAULT ''::"text" NOT NULL,
+END) STORED, -- 公開状態ソート順(Generated Column)
+    "bill_number" "text" DEFAULT ''::"text" NOT NULL, -- 議案番号（例:「第1号」「報告第1号」）
     "status_order" integer GENERATED ALWAYS AS (
 CASE "status"
     WHEN 'approved'::"public"."bill_status_enum" THEN 0
@@ -394,11 +394,11 @@ CASE "status"
     WHEN 'submitted'::"public"."bill_status_enum" THEN 5
     WHEN 'preparing'::"public"."bill_status_enum" THEN 6
     ELSE NULL::integer
-END) STORED,
-    "source_url" "text",
-    "bill_type" "text" DEFAULT 'bill'::"text" NOT NULL,
-    "discussion_overview_points" "text"[] DEFAULT '{}'::"text"[] NOT NULL,
-    CONSTRAINT "bills_bill_type_check" CHECK (("bill_type" = ANY (ARRAY['bill'::"text", 'opinion'::"text", 'resolution'::"text", 'member_bill'::"text"])))
+END) STORED, -- ステータスソート順(Generated Column)
+    "source_url" "text", -- 出典URL
+    "bill_type" "text" DEFAULT 'bill'::"text" NOT NULL, -- 議案種別(bill/consultation/opinion/petition/appeal/report/resolution/member_bill)
+    "discussion_overview_points" "text"[] DEFAULT '{}'::"text"[] NOT NULL, -- 議論概要ポイント
+    CONSTRAINT "bills_bill_type_check" CHECK (("bill_type" = ANY (ARRAY['bill'::"text", 'consultation'::"text", 'opinion'::"text", 'petition'::"text", 'appeal'::"text", 'report'::"text", 'resolution'::"text", 'member_bill'::"text"])))
 );
 
 
@@ -473,7 +473,7 @@ COMMENT ON COLUMN "public"."bills"."source_url" IS '出典URL（議案のPDF等�
 
 
 
-COMMENT ON COLUMN "public"."bills"."bill_type" IS '議案種別(bill:通常議案 / opinion:意見書案 / resolution:決議案 / member_bill:議員提出議案)';
+COMMENT ON COLUMN "public"."bills"."bill_type" IS '議案種別(bill:通常議案 / consultation:諮問 / opinion:意見書案 / petition:請願 / appeal:陳情 / report:報告 / resolution:決議 / member_bill:議員提出議案)';
 
 
 
@@ -482,9 +482,9 @@ COMMENT ON COLUMN "public"."bills"."discussion_overview_points" IS '議論概要
 
 
 CREATE TABLE IF NOT EXISTS "public"."bills_tags" (
-    "bill_id" "uuid" NOT NULL,
-    "tag_id" "uuid" NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "bill_id" "uuid" NOT NULL, -- 議案ID
+    "tag_id" "uuid" NOT NULL, -- タグID
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL -- 作成日時
 );
 
 
@@ -508,15 +508,15 @@ COMMENT ON COLUMN "public"."bills_tags"."created_at" IS '作成日時';
 
 
 CREATE TABLE IF NOT EXISTS "public"."budget_initiatives" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "theme_id" "uuid" NOT NULL,
-    "title" "text" NOT NULL,
-    "budget_amount" bigint,
-    "badge" "text",
-    "description" "text",
-    "sort_order" integer DEFAULT 0 NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "theme_id" "uuid" NOT NULL, -- 予算テーマID
+    "title" "text" NOT NULL, -- 施策タイトル
+    "budget_amount" bigint, -- 予算額
+    "badge" "text", -- バッジ種別(new/expanded/continued)
+    "description" "text", -- 施策説明
+    "sort_order" integer DEFAULT 0 NOT NULL, -- 表示順
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 作成日時
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 更新日時
     CONSTRAINT "budget_initiatives_badge_check" CHECK (("badge" = ANY (ARRAY['new'::"text", 'expanded'::"text", 'continued'::"text", NULL::"text"])))
 );
 
@@ -553,18 +553,18 @@ COMMENT ON COLUMN "public"."budget_initiatives"."sort_order" IS '表示順';
 
 
 CREATE TABLE IF NOT EXISTS "public"."budget_overviews" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "council_session_id" "uuid" NOT NULL,
-    "department_name" "text" NOT NULL,
-    "department_slug" "text" NOT NULL,
-    "direction" "text",
-    "total_budget" bigint,
-    "prev_budget" bigint,
-    "source_url" "text",
-    "publish_status" "text" DEFAULT 'draft'::"text" NOT NULL,
-    "sort_order" integer DEFAULT 0 NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "council_session_id" "uuid" NOT NULL, -- 市議会定例会ID
+    "department_name" "text" NOT NULL, -- 部局名
+    "department_slug" "text" NOT NULL, -- 部局スラッグ
+    "direction" "text", -- 方針
+    "total_budget" bigint, -- 当年度予算総額
+    "prev_budget" bigint, -- 前年度予算総額
+    "source_url" "text", -- 出典URL
+    "publish_status" "text" DEFAULT 'draft'::"text" NOT NULL, -- 公開状態(draft/published)
+    "sort_order" integer DEFAULT 0 NOT NULL, -- 表示順
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 作成日時
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 更新日時
     CONSTRAINT "budget_overviews_publish_status_check" CHECK (("publish_status" = ANY (ARRAY['draft'::"text", 'published'::"text"])))
 );
 
@@ -613,14 +613,14 @@ COMMENT ON COLUMN "public"."budget_overviews"."sort_order" IS '表示順';
 
 
 CREATE TABLE IF NOT EXISTS "public"."budget_themes" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "overview_id" "uuid" NOT NULL,
-    "title" "text" NOT NULL,
-    "budget_amount" bigint,
-    "ai_summary" "text",
-    "sort_order" integer DEFAULT 0 NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "overview_id" "uuid" NOT NULL, -- 予算概要ID
+    "title" "text" NOT NULL, -- テーマタイトル
+    "budget_amount" bigint, -- 予算額
+    "ai_summary" "text", -- AI要約
+    "sort_order" integer DEFAULT 0 NOT NULL, -- 表示順
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 作成日時
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL -- 更新日時
 );
 
 
@@ -652,18 +652,18 @@ COMMENT ON COLUMN "public"."budget_themes"."sort_order" IS '表示順';
 
 
 CREATE TABLE IF NOT EXISTS "public"."chat_usage_events" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "user_id" "uuid" NOT NULL,
-    "session_id" "text",
-    "prompt_name" "text",
-    "model" "text" NOT NULL,
-    "input_tokens" integer DEFAULT 0 NOT NULL,
-    "output_tokens" integer DEFAULT 0 NOT NULL,
-    "total_tokens" integer DEFAULT 0 NOT NULL,
-    "cost_usd" numeric(12,6) DEFAULT 0 NOT NULL,
-    "metadata" "jsonb",
-    "occurred_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "user_id" "uuid" NOT NULL, -- ユーザーID
+    "session_id" "text", -- セッションID
+    "prompt_name" "text", -- プロンプト名
+    "model" "text" NOT NULL, -- モデルID
+    "input_tokens" integer DEFAULT 0 NOT NULL, -- 入力トークン数
+    "output_tokens" integer DEFAULT 0 NOT NULL, -- 出力トークン数
+    "total_tokens" integer DEFAULT 0 NOT NULL, -- 合計トークン数
+    "cost_usd" numeric(12,6) DEFAULT 0 NOT NULL, -- コスト(USD)
+    "metadata" "jsonb", -- メタデータ
+    "occurred_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 発生日時
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL -- 作成日時
 );
 
 
@@ -719,13 +719,13 @@ COMMENT ON COLUMN "public"."chat_usage_events"."created_at" IS '作成日時';
 
 
 CREATE TABLE IF NOT EXISTS "public"."chats" (
-    "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
-    "bill_id" "uuid" NOT NULL,
-    "user_id" "uuid",
-    "role" "public"."chat_role_enum" NOT NULL,
-    "message" "text" NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL, -- ID
+    "bill_id" "uuid" NOT NULL, -- 議案ID
+    "user_id" "uuid", -- ユーザーID（Supabase匿名認証）
+    "role" "public"."chat_role_enum" NOT NULL, -- メッセージの送信者役割
+    "message" "text" NOT NULL, -- メッセージ本文
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 作成日時
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL -- 更新日時
 );
 
 
@@ -765,13 +765,13 @@ COMMENT ON COLUMN "public"."chats"."updated_at" IS '更新日時';
 
 
 CREATE TABLE IF NOT EXISTS "public"."committees" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "name" "text" NOT NULL,
-    "description" "text",
-    "sort_order" integer DEFAULT 0 NOT NULL,
-    "is_active" boolean DEFAULT true NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "name" "text" NOT NULL, -- 委員会名
+    "description" "text", -- 委員会説明
+    "sort_order" integer DEFAULT 0 NOT NULL, -- 表示順
+    "is_active" boolean DEFAULT true NOT NULL, -- 有効フラグ
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 作成日時
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL -- 更新日時
 );
 
 
@@ -799,15 +799,15 @@ COMMENT ON COLUMN "public"."committees"."is_active" IS '有効フラグ';
 
 
 CREATE TABLE IF NOT EXISTS "public"."council_sessions" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "name" "text" NOT NULL,
-    "start_date" "date" NOT NULL,
-    "end_date" "date",
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "slug" "text",
-    "council_url" "text",
-    "is_active" boolean DEFAULT false NOT NULL,
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "name" "text" NOT NULL, -- 会期名
+    "start_date" "date" NOT NULL, -- 開始日
+    "end_date" "date", -- 終了日
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 作成日時
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 更新日時
+    "slug" "text", -- URL用スラッグ（例: 219-rinji）
+    "council_url" "text", -- 議会議案情報ページURL
+    "is_active" boolean DEFAULT false NOT NULL, -- アクティブフラグ（トップ表示対象・1件のみ）
     CONSTRAINT "end_date_after_start_date" CHECK (("end_date" >= "start_date"))
 );
 
@@ -856,13 +856,13 @@ COMMENT ON COLUMN "public"."council_sessions"."is_active" IS 'Whether this sessi
 
 
 CREATE TABLE IF NOT EXISTS "public"."expert_registrations" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "name" "text" NOT NULL,
-    "affiliation" "text" NOT NULL,
-    "email" "text" NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "user_id" "uuid" NOT NULL
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "name" "text" NOT NULL, -- 有識者氏名
+    "affiliation" "text" NOT NULL, -- 所属・肩書
+    "email" "text" NOT NULL, -- メールアドレス
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 作成日時
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 更新日時
+    "user_id" "uuid" NOT NULL -- 登録ユーザーID
 );
 
 
@@ -890,13 +890,13 @@ COMMENT ON COLUMN "public"."expert_registrations"."user_id" IS '登録したユ�
 
 
 CREATE TABLE IF NOT EXISTS "public"."faction_stances" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "bill_id" "uuid" NOT NULL,
-    "faction_id" "uuid" NOT NULL,
-    "type" "public"."stance_type_enum" NOT NULL,
-    "comment" "text",
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "bill_id" "uuid" NOT NULL, -- 議案ID
+    "faction_id" "uuid" NOT NULL, -- 会派ID
+    "type" "public"."stance_type_enum" NOT NULL, -- スタンス種別
+    "comment" "text", -- コメント
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 作成日時
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL -- 更新日時
 );
 
 
@@ -924,15 +924,15 @@ COMMENT ON COLUMN "public"."faction_stances"."comment" IS 'コメント';
 
 
 CREATE TABLE IF NOT EXISTS "public"."factions" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "name" "text" NOT NULL,
-    "display_name" "text" NOT NULL,
-    "logo_url" "text",
-    "sort_order" integer DEFAULT 0 NOT NULL,
-    "is_active" boolean DEFAULT true NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "alternative_names" "text"[] DEFAULT '{}'::"text"[] NOT NULL
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "name" "text" NOT NULL, -- 会派名
+    "display_name" "text" NOT NULL, -- 会派表示名
+    "logo_url" "text", -- ロゴ画像URL
+    "sort_order" integer DEFAULT 0 NOT NULL, -- 表示順
+    "is_active" boolean DEFAULT true NOT NULL, -- 有効フラグ
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 作成日時
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 更新日時
+    "alternative_names" "text"[] DEFAULT '{}'::"text"[] NOT NULL -- 別名一覧(略称・旧称等)
 );
 
 
@@ -968,20 +968,20 @@ COMMENT ON COLUMN "public"."factions"."alternative_names" IS '別名一覧(略�
 
 
 CREATE TABLE IF NOT EXISTS "public"."general_questions" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "council_session_id" "uuid" NOT NULL,
-    "questioner_name" "text" NOT NULL,
-    "questioner_party" "text",
-    "questioner_number" integer,
-    "session_day" integer DEFAULT 1 NOT NULL,
-    "question_order" integer DEFAULT 1 NOT NULL,
-    "summary" "text",
-    "topics" "jsonb" DEFAULT '[]'::"jsonb" NOT NULL,
-    "raw_text" "text",
-    "source_url" "text",
-    "publish_status" "text" DEFAULT 'draft'::"text" NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"(),
-    "updated_at" timestamp with time zone DEFAULT "now"(),
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "council_session_id" "uuid" NOT NULL, -- 市議会定例会ID
+    "questioner_name" "text" NOT NULL, -- 質問者氏名
+    "questioner_party" "text", -- 質問者会派
+    "questioner_number" integer, -- 質問者番号
+    "session_day" integer DEFAULT 1 NOT NULL, -- 開催日番号
+    "question_order" integer DEFAULT 1 NOT NULL, -- 質問順序
+    "summary" "text", -- 質問要約
+    "topics" "jsonb" DEFAULT '[]'::"jsonb" NOT NULL, -- トピック一覧(JSON配列)
+    "raw_text" "text", -- 原文
+    "source_url" "text", -- 出典URL
+    "publish_status" "text" DEFAULT 'draft'::"text" NOT NULL, -- 公開状態(draft/published)
+    "created_at" timestamp with time zone DEFAULT "now"(), -- 作成日時
+    "updated_at" timestamp with time zone DEFAULT "now"(), -- 更新日時
     CONSTRAINT "general_questions_publish_status_check" CHECK (("publish_status" = ANY (ARRAY['draft'::"text", 'published'::"text"])))
 );
 
@@ -1038,17 +1038,17 @@ COMMENT ON COLUMN "public"."general_questions"."publish_status" IS '公開状態
 
 
 CREATE TABLE IF NOT EXISTS "public"."interview_configs" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "bill_id" "uuid" NOT NULL,
-    "status" "public"."interview_config_status_enum" DEFAULT 'closed'::"public"."interview_config_status_enum" NOT NULL,
-    "themes" "text"[],
-    "knowledge_source" "text",
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "name" "text" NOT NULL,
-    "mode" "public"."interview_mode_enum" DEFAULT 'loop'::"public"."interview_mode_enum" NOT NULL,
-    "chat_model" "text",
-    "estimated_duration" integer
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "bill_id" "uuid" NOT NULL, -- 対象議案ID
+    "status" "public"."interview_config_status_enum" DEFAULT 'closed'::"public"."interview_config_status_enum" NOT NULL, -- 設定ステータス(public:有効/closed:無効)
+    "themes" "text"[], -- テーマ配列
+    "knowledge_source" "text", -- 議案コンテキスト情報
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 作成日時
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 更新日時
+    "name" "text" NOT NULL, -- 設定名（識別用）
+    "mode" "public"."interview_mode_enum" DEFAULT 'loop'::"public"."interview_mode_enum" NOT NULL, -- インタビューモード(loop/bulk)
+    "chat_model" "text", -- チャット用AIモデルID
+    "estimated_duration" integer -- 目安所要時間(分)
 );
 
 
@@ -1100,11 +1100,11 @@ COMMENT ON COLUMN "public"."interview_configs"."estimated_duration" IS '目安�
 
 
 CREATE TABLE IF NOT EXISTS "public"."interview_messages" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "interview_session_id" "uuid" NOT NULL,
-    "role" "public"."interview_role_enum" NOT NULL,
-    "content" "text" NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "interview_session_id" "uuid" NOT NULL, -- インタビューセッションID
+    "role" "public"."interview_role_enum" NOT NULL, -- メッセージ役割(assistant/user)
+    "content" "text" NOT NULL, -- メッセージ内容
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL -- 作成日時
 );
 
 
@@ -1132,14 +1132,14 @@ COMMENT ON COLUMN "public"."interview_messages"."created_at" IS '作成日時';
 
 
 CREATE TABLE IF NOT EXISTS "public"."interview_questions" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "interview_config_id" "uuid" NOT NULL,
-    "question" "text" NOT NULL,
-    "follow_up_guide" "text",
-    "quick_replies" "text"[],
-    "question_order" integer NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "interview_config_id" "uuid" NOT NULL, -- インタビュー設定ID
+    "question" "text" NOT NULL, -- 質問文
+    "follow_up_guide" "text", -- フォローアップ指針
+    "quick_replies" "text"[], -- クイックリプライ選択肢
+    "question_order" integer NOT NULL, -- 質問順序
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 作成日時
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL -- 更新日時
 );
 
 
@@ -1179,24 +1179,24 @@ COMMENT ON COLUMN "public"."interview_questions"."updated_at" IS '更新日時';
 
 
 CREATE TABLE IF NOT EXISTS "public"."interview_report" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "interview_session_id" "uuid" NOT NULL,
-    "summary" "text",
-    "stance" "public"."stance_type_enum",
-    "role" "public"."interview_report_role_enum",
-    "role_description" "text",
-    "opinions" "jsonb",
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "is_public_by_admin" boolean DEFAULT false NOT NULL,
-    "scores" "jsonb",
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "interview_session_id" "uuid" NOT NULL, -- インタビューセッションID（1対1）
+    "summary" "text", -- インタビュー要約
+    "stance" "public"."stance_type_enum", -- ユーザーのスタンス(AI分析)
+    "role" "public"."interview_report_role_enum", -- ユーザーの役割(ENUM)
+    "role_description" "text", -- 役割の説明
+    "opinions" "jsonb", -- 意見配列 [{title, content}, ...]
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 作成日時
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 更新日時
+    "is_public_by_admin" boolean DEFAULT false NOT NULL, -- 管理者による公開状態
+    "scores" "jsonb", -- 評価スコア(total/clarity/specificity/impact/constructiveness/reasoning)
     "total_score" integer GENERATED ALWAYS AS (
 CASE
     WHEN (("scores" IS NOT NULL) AND (("scores" ->> 'total'::"text") IS NOT NULL) AND (("scores" ->> 'total'::"text") ~ '^\d+$'::"text")) THEN (("scores" ->> 'total'::"text"))::integer
     ELSE NULL::integer
-END) STORED,
-    "role_title" "text",
-    "is_public_by_user" boolean DEFAULT false NOT NULL
+END) STORED, -- 総合スコア(0-100) Generated Column
+    "role_title" "text", -- 役割タイトル(10文字以内)
+    "is_public_by_user" boolean DEFAULT false NOT NULL -- ユーザーによる公開同意
 );
 
 
@@ -1260,16 +1260,16 @@ COMMENT ON COLUMN "public"."interview_report"."is_public_by_user" IS 'Whether th
 
 
 CREATE TABLE IF NOT EXISTS "public"."interview_sessions" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "interview_config_id" "uuid" NOT NULL,
-    "user_id" "uuid" NOT NULL,
-    "langfuse_session_id" "text",
-    "started_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "completed_at" timestamp with time zone,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "archived_at" timestamp with time zone,
-    "rating" smallint,
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "interview_config_id" "uuid" NOT NULL, -- インタビュー設定ID
+    "user_id" "uuid" NOT NULL, -- ユーザーID（匿名認証）
+    "langfuse_session_id" "text", -- LangfuseセッションID
+    "started_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 開始日時
+    "completed_at" timestamp with time zone, -- 完了日時
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 作成日時
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 更新日時
+    "archived_at" timestamp with time zone, -- アーカイブ日時（やり直し時）
+    "rating" smallint, -- セッション評価(1-5)
     CONSTRAINT "interview_sessions_rating_check" CHECK ((("rating" >= 1) AND ("rating" <= 5)))
 );
 
@@ -1318,13 +1318,13 @@ COMMENT ON COLUMN "public"."interview_sessions"."rating" IS 'セッション評�
 
 
 CREATE TABLE IF NOT EXISTS "public"."press_conference_items" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "press_conference_id" "uuid" NOT NULL,
-    "item_type" "text" NOT NULL,
-    "order_index" integer NOT NULL,
-    "title" "text" NOT NULL,
-    "summary" "text",
-    "created_at" timestamp with time zone DEFAULT "now"(),
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "press_conference_id" "uuid" NOT NULL, -- 記者会見ID
+    "item_type" "text" NOT NULL, -- 項目種別(announcement:発表/qa:質疑応答)
+    "order_index" integer NOT NULL, -- 表示順
+    "title" "text" NOT NULL, -- 項目タイトル
+    "summary" "text", -- 要約
+    "created_at" timestamp with time zone DEFAULT "now"(), -- 作成日時
     CONSTRAINT "press_conference_items_item_type_check" CHECK (("item_type" = ANY (ARRAY['announcement'::"text", 'qa'::"text"])))
 );
 
@@ -1357,13 +1357,13 @@ COMMENT ON COLUMN "public"."press_conference_items"."summary" IS '要約';
 
 
 CREATE TABLE IF NOT EXISTS "public"."press_conference_turns" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "press_conference_item_id" "uuid" NOT NULL,
-    "speaker" "text" NOT NULL,
-    "speaker_name" "text",
-    "content" "text" NOT NULL,
-    "order_index" integer NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"(),
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "press_conference_item_id" "uuid" NOT NULL, -- 記者会見項目ID
+    "speaker" "text" NOT NULL, -- 発話者(mayor:市長/reporter:記者)
+    "speaker_name" "text", -- 発話者名
+    "content" "text" NOT NULL, -- 発言内容
+    "order_index" integer NOT NULL, -- 表示順
+    "created_at" timestamp with time zone DEFAULT "now"(), -- 作成日時
     CONSTRAINT "press_conference_turns_speaker_check" CHECK (("speaker" = ANY (ARRAY['mayor'::"text", 'reporter'::"text"])))
 );
 
@@ -1396,14 +1396,14 @@ COMMENT ON COLUMN "public"."press_conference_turns"."order_index" IS '表示順'
 
 
 CREATE TABLE IF NOT EXISTS "public"."press_conferences" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "slug" "text" NOT NULL,
-    "title" "text" NOT NULL,
-    "held_at" "date" NOT NULL,
-    "youtube_url" "text",
-    "status" "text" DEFAULT 'draft'::"text" NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"(),
-    "updated_at" timestamp with time zone DEFAULT "now"(),
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "slug" "text" NOT NULL, -- URL用スラッグ
+    "title" "text" NOT NULL, -- 会見タイトル
+    "held_at" "date" NOT NULL, -- 開催日
+    "youtube_url" "text", -- YouTube動画URL
+    "status" "text" DEFAULT 'draft'::"text" NOT NULL, -- ステータス(draft/structuring/review/published/error)
+    "created_at" timestamp with time zone DEFAULT "now"(), -- 作成日時
+    "updated_at" timestamp with time zone DEFAULT "now"(), -- 更新日時
     CONSTRAINT "press_conferences_status_check" CHECK (("status" = ANY (ARRAY['draft'::"text", 'structuring'::"text", 'review'::"text", 'published'::"text", 'error'::"text"])))
 );
 
@@ -1436,12 +1436,12 @@ COMMENT ON COLUMN "public"."press_conferences"."status" IS 'ステータス(draf
 
 
 CREATE TABLE IF NOT EXISTS "public"."preview_tokens" (
-    "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
-    "bill_id" "uuid" NOT NULL,
-    "token" "text" NOT NULL,
-    "expires_at" timestamp with time zone NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "created_by" "text"
+    "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL, -- ID
+    "bill_id" "uuid" NOT NULL, -- 議案ID
+    "token" "text" NOT NULL, -- プレビューアクセストークン
+    "expires_at" timestamp with time zone NOT NULL, -- 有効期限(30日)
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 作成日時
+    "created_by" "text" -- 作成者
 );
 
 
@@ -1477,11 +1477,11 @@ COMMENT ON COLUMN "public"."preview_tokens"."created_by" IS '作成者';
 
 
 CREATE TABLE IF NOT EXISTS "public"."report_reactions" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "interview_report_id" "uuid" NOT NULL,
-    "user_id" "uuid" NOT NULL,
-    "reaction_type" "text" NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "interview_report_id" "uuid" NOT NULL, -- インタビューレポートID
+    "user_id" "uuid" NOT NULL, -- ユーザーID
+    "reaction_type" "text" NOT NULL, -- リアクション種別(helpful/hmm)
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 作成日時
     CONSTRAINT "report_reactions_reaction_type_check" CHECK (("reaction_type" = ANY (ARRAY['helpful'::"text", 'hmm'::"text"])))
 );
 
@@ -1506,12 +1506,12 @@ COMMENT ON COLUMN "public"."report_reactions"."reaction_type" IS 'リアクシ�
 
 
 CREATE TABLE IF NOT EXISTS "public"."tags" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "label" "text" NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "featured_priority" integer,
-    "description" "text"
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "label" "text" NOT NULL, -- タグ表示名
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 作成日時
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 更新日時
+    "featured_priority" integer, -- Featured表示優先度（小さいほど優先・NULLは非表示）
+    "description" "text" -- タグ説明文
 );
 
 
@@ -1547,11 +1547,11 @@ COMMENT ON COLUMN "public"."tags"."description" IS 'タグ説明文';
 
 
 CREATE TABLE IF NOT EXISTS "public"."topic_analysis_classifications" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "version_id" "uuid" NOT NULL,
-    "interview_report_id" "uuid" NOT NULL,
-    "topic_id" "uuid" NOT NULL,
-    "opinion_index" integer NOT NULL
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "version_id" "uuid" NOT NULL, -- 所属バージョンID
+    "interview_report_id" "uuid" NOT NULL, -- インタビューレポートID
+    "topic_id" "uuid" NOT NULL, -- トピックID
+    "opinion_index" integer NOT NULL -- レポート内の意見インデックス
 );
 
 
@@ -1579,13 +1579,13 @@ COMMENT ON COLUMN "public"."topic_analysis_classifications"."opinion_index" IS '
 
 
 CREATE TABLE IF NOT EXISTS "public"."topic_analysis_topics" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "version_id" "uuid" NOT NULL,
-    "name" "text" NOT NULL,
-    "description_md" "text" NOT NULL,
-    "representative_opinions" "jsonb" DEFAULT '[]'::"jsonb" NOT NULL,
-    "sort_order" integer DEFAULT 0 NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "version_id" "uuid" NOT NULL, -- 所属バージョンID
+    "name" "text" NOT NULL, -- トピック名
+    "description_md" "text" NOT NULL, -- トピック説明文(markdown)
+    "representative_opinions" "jsonb" DEFAULT '[]'::"jsonb" NOT NULL, -- 代表的な意見(最大5件)
+    "sort_order" integer DEFAULT 0 NOT NULL, -- 表示順
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL -- 作成日時
 );
 
 
@@ -1617,19 +1617,19 @@ COMMENT ON COLUMN "public"."topic_analysis_topics"."sort_order" IS '表示順';
 
 
 CREATE TABLE IF NOT EXISTS "public"."topic_analysis_versions" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "bill_id" "uuid" NOT NULL,
-    "version" integer NOT NULL,
-    "status" "text" DEFAULT 'pending'::"text" NOT NULL,
-    "summary_md" "text",
-    "intermediate_results" "jsonb",
-    "error_message" "text",
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "current_step" "text",
-    "started_at" timestamp with time zone,
-    "completed_at" timestamp with time zone,
-    "phase_data" "jsonb",
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
+    "bill_id" "uuid" NOT NULL, -- 対象議案ID
+    "version" integer NOT NULL, -- バージョン番号（議案ごとにインクリメント）
+    "status" "text" DEFAULT 'pending'::"text" NOT NULL, -- 解析ステータス(pending/running/completed/failed)
+    "summary_md" "text", -- 全体サマリ(markdown)
+    "intermediate_results" "jsonb", -- 中間結果(デバッグ用)
+    "error_message" "text", -- エラーメッセージ
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 作成日時
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL, -- 更新日時
+    "current_step" "text", -- 現在のステップ
+    "started_at" timestamp with time zone, -- 開始日時
+    "completed_at" timestamp with time zone, -- 完了日時
+    "phase_data" "jsonb", -- フェーズ間データ受け渡し用
     CONSTRAINT "topic_analysis_versions_status_check" CHECK (("status" = ANY (ARRAY['pending'::"text", 'running'::"text", 'completed'::"text", 'failed'::"text"])))
 );
 

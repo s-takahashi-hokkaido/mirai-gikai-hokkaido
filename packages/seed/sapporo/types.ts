@@ -5,7 +5,7 @@ export type BillStatusEnum =
 
 export type ScrapedBill = {
   billNumber: string;
-  billType: "bill" | "consultation";
+  billType: "bill" | "consultation" | "opinion" | "petition" | "appeal" | "report";
   name: string;
   submittedDate: string | null;
   resolvedDate: string | null;

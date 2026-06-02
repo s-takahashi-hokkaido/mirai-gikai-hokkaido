@@ -82,7 +82,7 @@ async function main() {
     const record = {
       council_session_id: councilSessionId,
       bill_number: bill.billNumber,
-      bill_type: "bill",
+      bill_type: bill.billType,
       name: bill.name,
       status,
       status_note: bill.result || null,
@@ -98,7 +98,7 @@ async function main() {
       .select("id")
       .eq("council_session_id", councilSessionId)
       .eq("bill_number", bill.billNumber)
-      .eq("bill_type", "bill")
+      .eq("bill_type", bill.billType)
       .maybeSingle();
 
     const { error } = existing
