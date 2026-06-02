@@ -60,12 +60,14 @@ describe("mapResultToStatus", () => {
     expect(mapResultToStatus("不採択")).toBe("rejected");
   });
 
-  it("棄却を適当と認める → approved", () => {
+  it("棄却することを適当と認める → approved（諮問の文脈）", () => {
     expect(
-      mapResultToStatus(
-        "本件審査請求を棄却することを適当と認める"
-      )
+      mapResultToStatus("本件審査請求を棄却することを適当と認める")
     ).toBe("approved");
+  });
+
+  it("棄却 → rejected（請願の却下）", () => {
+    expect(mapResultToStatus("棄却")).toBe("rejected");
   });
 
   it("empty → submitted", () => {

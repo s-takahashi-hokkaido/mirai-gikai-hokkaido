@@ -28,9 +28,10 @@ export function mapResultToStatus(result: string): BillStatusEnum {
   if (r.includes("同意")) return "approved";
   if (r.includes("承認")) return "approved";
   if (r.includes("採択") && !r.includes("不採択")) return "approved";
+  if (r.includes("適当と認める")) return "approved"; // 諮問：「棄却することを適当と認める」等
   if (r.includes("否決")) return "rejected";
   if (r.includes("不採択")) return "rejected";
-  if (r.includes("棄却")) return "approved";
+  if (r.includes("棄却")) return "rejected"; // 請願の棄却（却下）
   return "submitted";
 }
 
