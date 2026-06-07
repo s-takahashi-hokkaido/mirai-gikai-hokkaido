@@ -12,6 +12,7 @@ export async function loadCommittees(): Promise<CommitteeWithBillCount[]> {
       `
       id,
       name,
+      committee_type,
       description,
       sort_order,
       is_active,
@@ -30,6 +31,7 @@ export async function loadCommittees(): Promise<CommitteeWithBillCount[]> {
     data?.map((committee) => ({
       id: committee.id,
       name: committee.name,
+      committee_type: committee.committee_type,
       description: committee.description,
       sort_order: committee.sort_order,
       is_active: committee.is_active,

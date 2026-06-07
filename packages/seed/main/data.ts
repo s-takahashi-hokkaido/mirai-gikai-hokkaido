@@ -133,44 +133,80 @@ export const factions: FactionInsert[] = [
   },
 ];
 
-// 委員会データ（札幌市議会 常任委員会）
+// 委員会データ（札幌市議会）
 // 出典: https://www.city.sapporo.jp/gikai/meibo/meibo-iinkai.html
-// ※ 議会運営委員会・特別委員会は対象外（必要になったら追加）
 export const committees: CommitteeInsert[] = [
+  // 常任委員会
   {
     name: "総務委員会",
+    committee_type: "standing",
     description: "一般行政事務、危機管理、選挙、人事などについての審査",
     sort_order: 1,
     is_active: true,
   },
   {
     name: "財政市民委員会",
+    committee_type: "standing",
     description: "財政、税務、市民生活、男女共同参画などについての審査",
     sort_order: 2,
     is_active: true,
   },
   {
     name: "文教委員会",
+    committee_type: "standing",
     description: "教育、学校、文化、子ども・子育てなどについての審査",
     sort_order: 3,
     is_active: true,
   },
   {
     name: "厚生委員会",
+    committee_type: "standing",
     description: "保健、医療、福祉、高齢者・障がい者支援などについての審査",
     sort_order: 4,
     is_active: true,
   },
   {
     name: "建設委員会",
+    committee_type: "standing",
     description: "道路、河川、都市計画、住宅、雪対策などについての審査",
     sort_order: 5,
     is_active: true,
   },
   {
     name: "経済観光委員会",
+    committee_type: "standing",
     description: "産業、観光、農業、商工業、雇用などについての審査",
     sort_order: 6,
+    is_active: true,
+  },
+  // 議会運営委員会
+  {
+    name: "議会運営委員会",
+    committee_type: "parliamentary",
+    description: "議会の運営に関する事項についての審査",
+    sort_order: 7,
+    is_active: true,
+  },
+  // 調査特別委員会
+  {
+    name: "大都市税財政制度・DX推進調査特別委員会",
+    committee_type: "special",
+    description: "大都市税財政制度及びDX推進に関する調査",
+    sort_order: 8,
+    is_active: true,
+  },
+  {
+    name: "総合交通政策調査特別委員会",
+    committee_type: "special",
+    description: "総合的な交通政策に関する調査",
+    sort_order: 9,
+    is_active: true,
+  },
+  {
+    name: "新たな都心空間調査特別委員会",
+    committee_type: "special",
+    description: "新たな都心空間の整備に関する調査",
+    sort_order: 10,
     is_active: true,
   },
 ];
