@@ -133,6 +133,12 @@ CREATE TYPE "public"."stance_type_enum" AS ENUM (
     'continued_deliberation'
 );
 
+CREATE TYPE "public"."committee_type_enum" AS ENUM (
+    'standing',       -- 常任委員会
+    'parliamentary',  -- 議会運営委員会
+    'special'         -- 調査特別委員会（特別委員会）
+);
+
 
 ALTER TYPE "public"."stance_type_enum" OWNER TO "postgres";
 
@@ -767,6 +773,7 @@ COMMENT ON COLUMN "public"."chats"."updated_at" IS '更新日時';
 CREATE TABLE IF NOT EXISTS "public"."committees" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL, -- ID
     "name" "text" NOT NULL, -- 委員会名
+    "committee_type" "public"."committee_type_enum" DEFAULT 'standing' NOT NULL, -- 委員会種別
     "description" "text", -- 委員会説明
     "sort_order" integer DEFAULT 0 NOT NULL, -- 表示順
     "is_active" boolean DEFAULT true NOT NULL, -- 有効フラグ
@@ -783,6 +790,10 @@ COMMENT ON TABLE "public"."committees" IS '委員会マスター';
 
 
 COMMENT ON COLUMN "public"."committees"."name" IS '委員会名';
+
+
+
+COMMENT ON COLUMN "public"."committees"."committee_type" IS '委員会種別（standing: 常任, parliamentary: 議会運営, special: 調査特別）';
 
 
 

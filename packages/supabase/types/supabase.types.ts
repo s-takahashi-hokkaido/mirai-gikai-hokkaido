@@ -471,6 +471,7 @@ export type Database = {
       }
       committees: {
         Row: {
+          committee_type: Database["public"]["Enums"]["committee_type_enum"]
           created_at: string
           description: string | null
           id: string
@@ -480,6 +481,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          committee_type?: Database["public"]["Enums"]["committee_type_enum"]
           created_at?: string
           description?: string | null
           id?: string
@@ -489,6 +491,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          committee_type?: Database["public"]["Enums"]["committee_type_enum"]
           created_at?: string
           description?: string | null
           id?: string
@@ -1329,6 +1332,7 @@ export type Database = {
         | "partially_adopted"
         | "reported"
       chat_role_enum: "user" | "system" | "assistant"
+      committee_type_enum: "standing" | "parliamentary" | "special"
       difficulty_level_enum: "normal" | "hard"
       interview_config_status_enum: "public" | "closed"
       interview_mode_enum: "loop" | "bulk"
@@ -1489,6 +1493,7 @@ export const Constants = {
         "reported",
       ],
       chat_role_enum: ["user", "system", "assistant"],
+      committee_type_enum: ["standing", "parliamentary", "special"],
       difficulty_level_enum: ["normal", "hard"],
       interview_config_status_enum: ["public", "closed"],
       interview_mode_enum: ["loop", "bulk"],
