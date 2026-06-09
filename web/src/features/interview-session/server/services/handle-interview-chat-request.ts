@@ -2,6 +2,7 @@ import "server-only";
 
 import {
   convertToModelMessages,
+  gateway,
   type LanguageModel,
   Output,
   streamText,
@@ -215,8 +216,8 @@ async function generateStreamingResponse({
 }) {
   // summaryフェーズはGemini固定、chatフェーズは設定のモデルを優先
   const model = isSummaryPhase
-    ? (summaryModel ?? AI_MODELS.gemini3_flash)
-    : (chatModel ?? configChatModel ?? DEFAULT_INTERVIEW_CHAT_MODEL);
+    ? (summaryModel ?? gateway(AI_MODELS.gemini3_flash))
+    : (chatModel ?? gateway(configChatModel ?? DEFAULT_INTERVIEW_CHAT_MODEL));
 
   const handleError = (error: unknown) => {
     console.error("LLM generation error:", error);

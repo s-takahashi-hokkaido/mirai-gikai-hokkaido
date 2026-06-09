@@ -2,6 +2,7 @@ import { openai } from "@ai-sdk/openai";
 import type { Database } from "@mirai-gikai/supabase";
 import {
   convertToModelMessages,
+  gateway,
   streamText,
   tool,
   type LanguageModel,
@@ -97,7 +98,7 @@ export async function handleChatRequest({
     promptProvider
   );
   // Model configuration
-  const model = deps?.model ?? AI_MODELS.gpt4o;
+  const model = deps?.model ?? gateway(AI_MODELS.gpt4o);
   const modelName =
     typeof model === "string" ? model : (model.modelId ?? "unknown");
 
