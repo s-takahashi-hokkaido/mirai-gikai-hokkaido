@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/features/auth/server/lib/auth-server";
 import { NextResponse } from "next/server";
 import { buildPrompt } from "@/features/ai-collection/server/utils/build-prompt";
 import {
@@ -24,6 +25,8 @@ export async function GET(
   const { runId } = await params;
 
   try {
+    await requireAdmin();
+
     const run = await loadRun(runId);
 
     if (!run) {
@@ -50,6 +53,8 @@ export async function POST(
   const { runId } = await params;
 
   try {
+    await requireAdmin();
+
     const run = await loadRun(runId);
 
     if (!run) {

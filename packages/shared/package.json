@@ -14,6 +14,10 @@
     "./stream/inject-json-fields": {
       "types": "./src/stream/inject-json-fields.ts",
       "default": "./src/stream/inject-json-fields.ts"
+    },
+    "./auth/basic-auth": {
+      "types": "./src/auth/basic-auth.ts",
+      "default": "./src/auth/basic-auth.ts"
     }
   },
   "devDependencies": {

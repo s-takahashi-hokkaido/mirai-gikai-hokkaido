@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@mirai-gikai/supabase";
+import { requireAdmin } from "@/features/auth/server/lib/auth-server";
 import { invalidateWebCache } from "@/lib/utils/cache-invalidation";
 import type { StanceInput } from "../../shared/types";
 
@@ -11,6 +12,8 @@ export async function upsertStance(
   data: StanceInput
 ) {
   try {
+    await requireAdmin();
+
     const supabase = createAdminClient();
 
     const { error } = await supabase.from("faction_stances").upsert(

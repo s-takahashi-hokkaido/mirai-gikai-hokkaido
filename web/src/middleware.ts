@@ -8,9 +8,13 @@ import {
 import {
   createUnauthorizedResponse,
   getBasicAuthConfig,
+  isHtmlAcceptHeader,
   isPageSpeedInsights,
   validateBasicAuth,
 } from "./lib/basic-auth";
+
+// 既存テストが middleware 経由で参照しているため再エクスポートする
+export { isHtmlAcceptHeader };
 
 export function middleware(request: NextRequest) {
   // /dev routes: 本番では404、開発ではauthスキップ
@@ -75,10 +79,6 @@ function _handleDifficultyCookie(request: NextRequest): NextResponse {
   }
 
   return response;
-}
-
-export function isHtmlAcceptHeader(accept: string): boolean {
-  return accept.includes("text/html");
 }
 
 function _isHtmlRequest(request: NextRequest) {

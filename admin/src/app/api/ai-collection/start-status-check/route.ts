@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/features/auth/server/lib/auth-server";
 import { NextResponse } from "next/server";
 import { getBillsInPeriod } from "@/features/ai-collection/server/loaders/get-bills-in-period";
 import { buildStatusCheckPrompt } from "@/features/ai-collection/server/utils/build-status-check-prompt";
@@ -20,6 +21,8 @@ import type {
 
 export async function POST(request: Request) {
   try {
+    await requireAdmin();
+
     const body = (await request.json()) as {
       startDate?: string;
       endDate?: string;

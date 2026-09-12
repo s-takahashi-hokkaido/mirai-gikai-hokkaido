@@ -1,6 +1,6 @@
 import "client-only";
 import { createBrowserClient } from "@mirai-gikai/supabase";
-import { checkAdminPermission } from "@/lib/auth/permissions";
+import { hasAdminAccess } from "@/features/auth/server/actions/check-admin-access";
 
 const supabase = createBrowserClient();
 export const authClient = supabase.auth;
@@ -17,9 +17,11 @@ export async function signIn(email: string, password: string) {
     );
   }
 
-  if (!checkAdminPermission(data.user)) {
+  if (!(await hasAdminAccess())) {
     await authClient.signOut();
-    throw new Error("管理者権限がありません。アクセスが拒否されました。");
+    throw new Error(
+      "管理画面の利用権限がありません。アクセスが拒否されました。"
+    );
   }
 
   return data;

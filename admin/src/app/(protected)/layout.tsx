@@ -2,7 +2,8 @@ import { Home, User } from "lucide-react";
 import type { ReactNode } from "react";
 import { siteConfig } from "@/config/site.config";
 import { LogoutButton } from "@/features/auth/client/components/logout-button";
-import { getCurrentAdmin } from "@/features/auth/server/lib/auth-server";
+import { requireRoleOrRedirect } from "@/features/auth/server/lib/auth-server";
+import { ALL_ROLES, ROLE_LABELS } from "@/features/auth/shared/utils/role";
 import { NavigationLinks } from "./layout/navigation-links";
 
 export default async function MainLayout({
@@ -10,7 +11,9 @@ export default async function MainLayout({
 }: {
   children: ReactNode;
 }) {
-  const admin = await getCurrentAdmin();
+  // 認可の入口。middleware はログイン済みかしか見ないため、
+  // 管理画面の利用資格（admin_profiles の有無）はここで確認する。
+  const admin = await requireRoleOrRedirect(ALL_ROLES);
   return (
     <div className="min-h-dvh bg-gray-50">
       {/* Header */}
@@ -31,14 +34,19 @@ export default async function MainLayout({
             <div className="flex items-center space-x-2 md:space-x-4">
               <div className="hidden sm:flex items-center space-x-2 text-sm text-gray-700">
                 <User className="h-4 w-4" />
-                <span className="hidden md:inline">{admin?.email}</span>
+                <span className="hidden md:inline">
+                  {admin.displayName}
+                  <span className="ml-2 text-xs text-gray-500">
+                    {ROLE_LABELS[admin.role]}
+                  </span>
+                </span>
               </div>
               <LogoutButton />
             </div>
           </div>
 
           {/* Navigation */}
-          <NavigationLinks />
+          <NavigationLinks role={admin.role} />
         </div>
       </header>
 
