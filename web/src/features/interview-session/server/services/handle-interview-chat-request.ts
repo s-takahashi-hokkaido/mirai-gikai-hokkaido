@@ -4,10 +4,16 @@ import {
   convertToModelMessages,
   gateway,
   type LanguageModel,
+  type LanguageModelUsage,
   Output,
   streamText,
 } from "ai";
 import { getBillByIdAdmin } from "@/features/bills/server/loaders/get-bill-by-id-admin";
+import {
+  checkDailyCostGuard,
+  recordChatUsage,
+} from "@/features/chat/server/services/cost-tracker";
+import { ChatError, ChatErrorCode } from "@/features/chat/shared/types/errors";
 import { getInterviewConfigAdmin } from "@/features/interview-config/server/loaders/get-interview-config-admin";
 import { getInterviewQuestions } from "@/features/interview-config/server/loaders/get-interview-questions";
 import { createInterviewSession } from "@/features/interview-session/server/actions/create-interview-session";
@@ -25,6 +31,7 @@ import type {
   InterviewSession,
 } from "@/features/interview-session/shared/types";
 import { AI_MODELS, DEFAULT_INTERVIEW_CHAT_MODEL } from "@/lib/ai/models";
+import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { mergeMessagesWithIds } from "../../shared/utils/merge-messages-with-ids";
 import {
@@ -90,6 +97,9 @@ export async function handleInterviewChatRequest({
   const session =
     (await getSessionFn(interviewConfig.id)) ??
     (await createInterviewSession({ interviewConfigId: interviewConfig.id }));
+
+  // コスト上限チェック（超過していればLLMを呼ばずに終了）
+  await assertWithinCostLimit(session.user_id);
 
   // 最新のメッセージを取得
   const lastMessage = messages[messages.length - 1];
@@ -171,6 +181,8 @@ export async function handleInterviewChatRequest({
     systemPrompt,
     messages,
     sessionId: session.id,
+    userId: session.user_id,
+    billId,
     isSummaryPhase,
     chatModel: deps?.chatModel,
     summaryModel: deps?.summaryModel,
@@ -194,6 +206,8 @@ async function generateStreamingResponse({
   systemPrompt,
   messages,
   sessionId,
+  userId,
+  billId,
   isSummaryPhase,
   chatModel,
   summaryModel,
@@ -203,6 +217,8 @@ async function generateStreamingResponse({
   systemPrompt: string;
   messages: { role: string; content: string }[];
   sessionId: string;
+  userId: string;
+  billId: string;
   isSummaryPhase: boolean;
   chatModel?: LanguageModel;
   summaryModel?: LanguageModel;
@@ -215,9 +231,15 @@ async function generateStreamingResponse({
   };
 }) {
   // summaryフェーズはGemini固定、chatフェーズは設定のモデルを優先
+  // コスト記録に使うためモデルIDは文字列としても保持する
+  const modelId = isSummaryPhase
+    ? AI_MODELS.gemini3_flash
+    : (configChatModel ?? DEFAULT_INTERVIEW_CHAT_MODEL);
   const model = isSummaryPhase
-    ? (summaryModel ?? gateway(AI_MODELS.gemini3_flash))
-    : (chatModel ?? gateway(configChatModel ?? DEFAULT_INTERVIEW_CHAT_MODEL));
+    ? (summaryModel ?? gateway(modelId))
+    : (chatModel ?? gateway(modelId));
+
+  const functionId = isSummaryPhase ? "interview-summary" : "interview-chat";
 
   const handleError = (error: unknown) => {
     console.error("LLM generation error:", error);
@@ -226,7 +248,10 @@ async function generateStreamingResponse({
     );
   };
 
-  const handleFinish = async (event: { text?: string }) => {
+  const handleFinish = async (event: {
+    text?: string;
+    usage?: LanguageModelUsage;
+  }) => {
     try {
       if (event.text) {
         await saveInterviewMessage({
@@ -238,14 +263,32 @@ async function generateStreamingResponse({
     } catch (err) {
       console.error("Failed to save interview message:", err);
     }
+
+    // 利用コストを記録する。ここで失敗してもユーザーへの応答は妨げない
+    try {
+      if (event.usage) {
+        await recordChatUsage({
+          userId,
+          sessionId,
+          promptName: functionId,
+          model: modelId,
+          usage: event.usage,
+          metadata: {
+            feature: "interview",
+            billId,
+            stage: telemetry?.stage ?? null,
+          },
+        });
+      }
+    } catch (err) {
+      console.error("Failed to record interview usage:", err);
+    }
   };
 
   const uiMessages = messages.map((message) => ({
     role: message.role as "user" | "assistant",
     parts: [{ type: "text" as const, text: message.content }],
   }));
-
-  const functionId = isSummaryPhase ? "interview-summary" : "interview-chat";
 
   const streamParams = {
     model,
@@ -291,5 +334,30 @@ async function generateStreamingResponse({
   } catch (error) {
     handleError(error);
     throw error;
+  }
+}
+
+/**
+ * 当日のAI利用コストが上限内であることを確認する
+ *
+ * 上限に達していれば ChatError を投げる。
+ * 判定処理自体が失敗した場合は、ログに記録して続行する（チャット側と同じ方針）。
+ */
+async function assertWithinCostLimit(userId: string): Promise<void> {
+  try {
+    const guard = await checkDailyCostGuard({
+      userId,
+      perUserLimitUsd: env.interview.dailyCostLimitUsd,
+    });
+
+    if (!guard.allowed) {
+      console.warn(`Interview cost limit reached: reason=${guard.reason}`);
+      throw new ChatError(ChatErrorCode.DAILY_COST_LIMIT_REACHED);
+    }
+  } catch (error) {
+    if (error instanceof ChatError) {
+      throw error;
+    }
+    console.error("Cost limit check error:", error);
   }
 }

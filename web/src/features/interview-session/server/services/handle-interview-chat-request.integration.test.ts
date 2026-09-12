@@ -8,6 +8,9 @@ import {
   type TestUser,
 } from "@test-utils/utils";
 import { createStreamMock } from "@/test-utils/mock-language-model";
+import { recordChatUsage } from "@/features/chat/server/services/cost-tracker";
+import { ChatError, ChatErrorCode } from "@/features/chat/shared/types/errors";
+import type { LanguageModelUsage } from "ai";
 import type { InterviewConfig } from "@/features/interview-config/server/loaders/get-interview-config-admin";
 import { findInterviewMessagesBySessionId } from "../repositories/interview-session-repository";
 import { handleInterviewChatRequest } from "./handle-interview-chat-request";
@@ -83,6 +86,10 @@ describe("handleInterviewChatRequest 統合テスト", () => {
   });
 
   afterEach(async () => {
+    await adminClient
+      .from("chat_usage_events")
+      .delete()
+      .eq("user_id", testUser.id);
     await cleanupTestBill(billId);
     await cleanupTestUser(testUser.id);
   });
@@ -247,6 +254,92 @@ describe("handleInterviewChatRequest 統合テスト", () => {
       // summaryModel の出力が保存されていること
       expect(messages).toHaveLength(2);
       expect(messages[1].content).toBe(validSummaryResponse);
+    });
+  });
+
+  describe("AI利用コスト", () => {
+    it("ストリーム完了後に chat_usage_events へ interview として記録される", async () => {
+      const mockModel = createStreamMock([validChatResponse]);
+
+      const response = await handleInterviewChatRequest({
+        messages: [{ role: "user", content: "意見があります" }],
+        billId,
+        currentStage: "chat",
+        deps: {
+          chatModel: mockModel,
+          getBill: async () => null,
+          getInterviewConfig: async () => config,
+          getSession: async () => session,
+          getMessages: async () => [],
+        },
+      });
+
+      expect(response.status).toBe(200);
+      await consumeResponseStream(response);
+
+      // onFinish は非同期のため少し待つ
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      const { data: usageEvents } = await adminClient
+        .from("chat_usage_events")
+        .select("*")
+        .eq("user_id", testUser.id);
+
+      expect(usageEvents).toHaveLength(1);
+      expect(usageEvents?.[0].session_id).toBe(sessionId);
+      expect(usageEvents?.[0].prompt_name).toBe("interview-chat");
+      expect(
+        (usageEvents?.[0].metadata as { feature?: string } | null)?.feature
+      ).toBe("interview");
+    });
+
+    it("日次コストリミットを超過している場合は ChatError をスローする", async () => {
+      // 全体上限(既定5USD)も同じテーブルを見るため、他のテストファイルを
+      // 巻き込まないようユーザー単位上限(既定0.5USD)だけを超える額にする。
+      await recordChatUsage({
+        userId: testUser.id,
+        model: "openai/gpt-4o",
+        usage: {
+          inputTokens: 0,
+          outputTokens: 0,
+          totalTokens: 0,
+        } as LanguageModelUsage,
+        costUsd: 0.6,
+      });
+
+      const mockModel = createStreamMock([validChatResponse]);
+
+      await expect(
+        handleInterviewChatRequest({
+          messages: [{ role: "user", content: "意見があります" }],
+          billId,
+          currentStage: "chat",
+          deps: {
+            chatModel: mockModel,
+            getBill: async () => null,
+            getInterviewConfig: async () => config,
+            getSession: async () => session,
+            getMessages: async () => [],
+          },
+        })
+      ).rejects.toMatchObject({
+        code: ChatErrorCode.DAILY_COST_LIMIT_REACHED,
+      });
+
+      await expect(
+        handleInterviewChatRequest({
+          messages: [{ role: "user", content: "意見があります" }],
+          billId,
+          currentStage: "chat",
+          deps: {
+            chatModel: mockModel,
+            getBill: async () => null,
+            getInterviewConfig: async () => config,
+            getSession: async () => session,
+            getMessages: async () => [],
+          },
+        })
+      ).rejects.toThrow(ChatError);
     });
   });
 });

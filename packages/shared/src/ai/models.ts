@@ -29,5 +29,11 @@ export const AI_MODELS = {
 
 export type AiModel = (typeof AI_MODELS)[keyof typeof AI_MODELS];
 
-/** インタビューチャットのデフォルトモデル */
-export const DEFAULT_INTERVIEW_CHAT_MODEL = AI_MODELS.gpt5_2;
+/**
+ * インタビューチャットのデフォルトモデル
+ *
+ * 公開サイトでは利用量が読めないため、既定は安価なモデルにする。
+ * gpt5_2 比で入力1/7・出力1/7のコスト。議案ごとに変えたい場合は
+ * interview_configs.chat_model で上書きする。
+ */
+export const DEFAULT_INTERVIEW_CHAT_MODEL = AI_MODELS.gpt5_mini;

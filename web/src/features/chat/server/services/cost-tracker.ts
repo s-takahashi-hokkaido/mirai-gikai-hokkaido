@@ -3,12 +3,18 @@ import "server-only";
 import type { LanguageModelUsage } from "ai";
 
 import { sanitizeUsage } from "@/lib/ai/calculate-ai-cost";
+import {
+  type CostGuardResult,
+  evaluateCostGuard,
+  getJstDayRange,
+} from "@/lib/ai/cost-guard";
+import { env } from "@/lib/env";
 import { parseCost, resolveCostUsd } from "../../shared/utils/cost-utils";
 
 import {
   type ChatUsageInsert,
-  findChatUsageEvents,
   insertChatUsageEvent,
+  sumAiUsageCostUsd,
 } from "../repositories/chat-usage-repository";
 
 type RecordChatUsageParams = {
@@ -50,11 +56,56 @@ export async function recordChatUsage({
   await insertChatUsageEvent(payload);
 }
 
+/**
+ * 指定ユーザーが期間内に使用したAIコスト(USD)を取得する
+ */
 export async function getUsageCostUsd(
   userId: string,
   fromIso: string,
   toIso: string
 ): Promise<number> {
-  const rows = await findChatUsageEvents(userId, fromIso, toIso);
-  return rows.reduce((acc, row) => acc + parseCost(row), 0);
+  const total = await sumAiUsageCostUsd(fromIso, toIso, userId);
+  return parseCost({ cost_usd: total });
+}
+
+/**
+ * サイト全体が期間内に使用したAIコスト(USD)を取得する
+ *
+ * 匿名ユーザーは作り直せるため、実際の請求額を守るのはこちらの集計。
+ */
+export async function getGlobalUsageCostUsd(
+  fromIso: string,
+  toIso: string
+): Promise<number> {
+  const total = await sumAiUsageCostUsd(fromIso, toIso);
+  return parseCost({ cost_usd: total });
+}
+
+/**
+ * 当日のAI利用コストが上限内かどうかを判定する
+ *
+ * チャットとインタビューで共通。ユーザー単位と全体の両方を見る。
+ *
+ * @param perUserLimitUsd 機能ごとに異なるユーザー単位の上限
+ */
+export async function checkDailyCostGuard({
+  userId,
+  perUserLimitUsd,
+}: {
+  userId: string;
+  perUserLimitUsd: number;
+}): Promise<CostGuardResult> {
+  const { from, to } = getJstDayRange();
+
+  const [perUserUsedUsd, globalUsedUsd] = await Promise.all([
+    getUsageCostUsd(userId, from, to),
+    getGlobalUsageCostUsd(from, to),
+  ]);
+
+  return evaluateCostGuard({
+    perUserUsedUsd,
+    perUserLimitUsd,
+    globalUsedUsd,
+    globalLimitUsd: env.aiCost.globalDailyLimitUsd,
+  });
 }

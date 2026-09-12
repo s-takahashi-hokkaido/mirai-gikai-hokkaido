@@ -205,7 +205,9 @@ describe("handleChatRequest 統合テスト", () => {
 
   describe("コストリミット超過", () => {
     it("日次コストリミットを超過している場合は ChatError をスローする", async () => {
-      // デイリーコストリミットを超える記録を事前にシード
+      // デイリーコストリミットを超える記録を事前にシード。
+      // 全体上限(既定5USD)も同じテーブルを見るため、他のテストファイルを
+      // 巻き込まないようユーザー単位上限(既定0.5USD)だけを超える額にする。
       await recordChatUsage({
         userId: testUser.id,
         model: "openai/gpt-4o",
@@ -214,7 +216,7 @@ describe("handleChatRequest 統合テスト", () => {
           outputTokens: 0,
           totalTokens: 0,
         } as LanguageModelUsage,
-        costUsd: 9999.99,
+        costUsd: 0.6,
       });
 
       const mockModel = createStreamMock(["テスト"]);
